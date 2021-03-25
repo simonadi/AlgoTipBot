@@ -1,5 +1,6 @@
 from algosdk.account import generate_account
-from algosdk.v2_client import algod
+from algosdk.v2client import algod
+from algosdk.util import microalgos_to_algos
 
 from praw.models.reddit.message import Message
 from praw.models.reddit.comment import Comment
@@ -10,15 +11,23 @@ from dataclasses import dataclass
 
 from redis import Redis
 
+import praw
+
 import os
 
 import qrcode
 
 from datetime import datetime
 
+from templates import WALLET_REPR, WALLET_CREATED
+from rich.console import Console
+
+console = Console()
+
 ######################### Initialize Redis connection #########################
 
-redis = Redis()
+REDIS_PW = os.environ.get("REDIS_PW")
+redis = Redis(password=REDIS_PW, decode_responses=True)
 
 ######################### Initialize Algod connection #########################
 
@@ -59,25 +68,25 @@ class Wallet:
 
         """
         wallet_dict = redis.hgetall(f"algotip-wallets:{username}")
-        if wallet_dict is None:
+        if not wallet_dict:
             return None
         else:
             return cls(wallet_dict["private_key"], wallet_dict["public_key"])
 
     def save(self, username: str) -> None:
         """
-        Saves the wallet information to the Redis 
+        Saves the wallet information to the Redis
         database
         """
-        redis.hset(f"algotip-wallets:{username}", {"private_key": self.private_key,
-                                                   "public_key": self.public_key})
+        redis.hmset(f"algotip-wallets:{username}", {"private_key": self.private_key,
+                                                    "public_key": self.public_key})
 
+    @property
     def qrcode(self) -> None:
         """
 
         """
-        img = qrcode.make(address)
-        img.show()
+        return f"https://api.qrserver.com/v1/create-qr-code/?data={self.public_key}&size=220x220&margin=4"
 
     @property
     def balance(self) -> float:
@@ -85,8 +94,7 @@ class Wallet:
 
         """
         account_info = algod.account_info(self.public_key)
-        print(account_info)
-        balance = float(microalgos_to_algos(account_info["amount-without-pending-rewards"])) # Show the balance with rewards
+        balance = float(microalgos_to_algos(account_info["amount"]))
         return balance
 
     def __repr__(self) -> None:
@@ -94,12 +102,13 @@ class Wallet:
         """
         return WALLET_REPR.substitute(private_key=self.private_key,
                                       public_key=self.public_key,
-                                      balance=self.balance)
+                                      balance=self.balance,
+                                      qr_code_link=self.qrcode)
 
 @dataclass
 class Transaction:
-    sender: User
-    receiver: User
+    sender: "User"
+    receiver: "User"
     amount: float
     message: str
     trigger_event: Union[Message, Comment]
@@ -164,8 +173,10 @@ class User:
 
         wallet = Wallet.load(name)
         if wallet is None:
-            wallet = Wallet.generate(name)
-        
+            wallet = Wallet.generate()
+            console.log(WALLET_CREATED.substitute(user=name,
+                                                  public_key=wallet.public_key))
+
         self.wallet = wallet
         self.wallet.save(name)
 

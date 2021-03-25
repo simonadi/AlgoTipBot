@@ -1,8 +1,14 @@
 from praw.models.reddit.message import Message
 from praw.models.reddit.comment import Comment
 
-from instances import Transaction
+from instances import Transaction, User
+from typing import Union
 
+from rich.console import Console
+
+from templates import EVENT_RECEIVED
+
+console = Console()
 
 class EventHandler:
     unconfirmed_transactions: set = set()
@@ -17,7 +23,7 @@ class EventHandler:
         """
         Parses the incoming message to determine what action to take
         """
-        author = User.load(message.author)
+        author = User(message.author)
         command = message.body.split()
         anonymous = (message.subject.lower() == "anonymous")
         main_cmd = command[0]
@@ -26,7 +32,7 @@ class EventHandler:
         elif main_cmd == "withdraw":
             pass
         elif main_cmd == "wallet":
-            if len(cmd) > 1:
+            if len(command) > 1:
                 self.help()
             else:
                 message.reply(str(author.wallet))
@@ -37,6 +43,9 @@ class EventHandler:
         """
 
         """
+        console.log(EVENT_RECEIVED.substitute(author=event.author,
+                                              message=event.body,
+                                              event_type=type(event).__name__))
         if isinstance(event, Message):
             self.handle_message(event)
         elif isinstance(event, Comment):

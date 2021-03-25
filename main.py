@@ -1,16 +1,15 @@
 from rich.console import Console
-import praw
 
 from time import time, sleep
 
-from praw.models.reddit.message import Message
-from praw.models.reddit.comment import Comment
-
-from handlers import handle_comment, handle_message
+from handlers import EventHandler
 
 from instances import client
+import traceback
 
 console = Console()
+
+event_handler = EventHandler()
 
 def main():
     """
@@ -21,7 +20,7 @@ def main():
 
     while True:
         if not waiting:
-            for transaction in unconfirmed_transactions:
+            for transaction in event_handler.unconfirmed_transactions:
                 if transaction.confirmed():
                     transaction.trigger_event.reply(TRANSACTION_CONFIRMATION.substitute(amount=transaction.amount,
                                                                                         receiver=transaction.receiver.name))
@@ -30,14 +29,16 @@ def main():
 
         for event in client.inbox.unread():
             try:
-                new_transaction = handle_event(event)
+                new_transaction = event_handler.handle_event(event)
                 client.inbox.mark_read([event])
 
                 if new_transaction is not None:
                     unconfirmed_transactions.add(new_transaction)
 
             except Exception as e:
-                console.log(e)
+                console.log("An unknown issue occured")
+                traceback.print_exc()
+                exit()
 
         waiting = (waiting + 1) % 10 # To check the transctions every 10 iterations
 
@@ -49,7 +50,7 @@ def main():
         # Transaction checking cannot be done if i use event in stream.
         # Can use while True with .all()
 
-        
+
 
 
 if __name__ == "__main__":
