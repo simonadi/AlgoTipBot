@@ -37,8 +37,8 @@ class EventHandler:
                 amount = float(command[2])
             except:
                 self.help(author, command) # Tell them the format is invalid
-            message = " ".join(command[3:])
-            author.send(receiver, amount, message)
+            note = " ".join(command[3:])
+            author.send(receiver, amount, note, message)
         ######################### Handle withdraw command #########################
         elif main_cmd == "withdraw":
             if len(command) > 4:
@@ -48,7 +48,7 @@ class EventHandler:
                 self.help(author)
                 return
             elif len(command) == 4:
-                message = command[3]
+                note = command[3]
             
             amount = command[1]
             address = command[2]
