@@ -7,6 +7,8 @@ from handlers import EventHandler
 from instances import client
 import traceback
 
+from templates improt TRANSACTION_CONFIRMATION
+
 console = Console()
 
 event_handler = EventHandler()

@@ -2,9 +2,6 @@ from algosdk.account import generate_account
 from algosdk.v2client import algod
 from algosdk.util import microalgos_to_algos
 
-from praw.models.reddit.message import Message
-from praw.models.reddit.comment import Comment
-
 from typing import Union
 
 from dataclasses import dataclass
@@ -13,43 +10,18 @@ from redis import Redis
 
 import praw
 
-import os
+from transactions import Transaction, TipTransaction, WithdrawTransaction
 
 import qrcode
 
-from datetime import datetime
+from clients import redis, algod, client
 
-from transactions import Transaction
+from datetime import datetime
 
 from templates import WALLET_REPR, WALLET_CREATED
 from rich.console import Console
 
 console = Console()
-
-######################### Initialize Redis connection #########################
-
-REDIS_PW = os.environ.get("REDIS_PW")
-redis = Redis(password=REDIS_PW, decode_responses=True)
-
-######################### Initialize Algod connection #########################
-
-ALGOD_TOKEN = os.environ.get("ALGOD_TOKEN")
-ALGOD_ADDRESS = "https://testnet-algorand.api.purestake.io/ps2"
-
-headers = {
-    "x-api-key": ALGOD_TOKEN
-}
-
-algod = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ADDRESS, headers)
-
-
-######################### Initialize Reddit connection #########################
-
-client = praw.Reddit(
-            "AlgorandTipBot",
-            user_agent="AlgoTipBot"
-)
-
 
 @dataclass
 class Wallet:

@@ -1,6 +1,22 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from clients import redis, algod, client
+
+from typing import Union
+
+from praw.models.reddit.message import Message
+from praw.models.reddit.comment import Comment
+
+from algosdk import transaction
+from algosdk.util import microalgos_to_algos
+
+from time import time
+
+from rich.console import Console
+
+console = Console()
+
 class Transaction(ABC):
 
     @abstractmethod
@@ -60,8 +76,7 @@ class TipTransaction(Transaction):
         """
 
         """
-        last_round = client.status().get('last-round')
-        txinfo = client.pending_transaction_info(txid)
+        txinfo = algod.pending_transaction_info(self.tx_id)
         return (txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0)
 
     def save(self):
@@ -118,8 +133,7 @@ class WithdrawTransaction(Transaction):
         """
 
         """
-        last_round = client.status().get('last-round')
-        txinfo = client.pending_transaction_info(txid)
+        txinfo = algod.pending_transaction_info(self.tx_id)
         return (txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0)
 
     def save(self):
