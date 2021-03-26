@@ -1,7 +1,8 @@
 from praw.models.reddit.message import Message
 from praw.models.reddit.comment import Comment
 
-from instances import Transaction, User
+from instances import User
+from transactions import Transaction
 from typing import Union
 
 from rich.console import Console
@@ -27,17 +28,48 @@ class EventHandler:
         command = message.body.split()
         anonymous = (message.subject.lower() == "anonymous")
         main_cmd = command[0]
-        if main_cmd == "tip":
-            pass
+        ######################### Handle tip command #########################
+        if main_cmd == "tip": # This whole check is ugly, make it nice
+            # if not reddit_user_exists(command[1]):
+            #     pass # Tell them the user can't be found
+            receiver = User(command[1])
+            try:
+                amount = float(command[2])
+            except:
+                self.help(author, command) # Tell them the format is invalid
+            message = " ".join(command[3:])
+            autohr.send(receiver, amount, message)
+        ######################### Handle withdraw command #########################
         elif main_cmd == "withdraw":
-            pass
+            if len(command) > 4:
+                self.help(author)
+                return
+            elif len(command) < 3:
+                self.help(author)
+                return
+            elif len(command) == 4:
+                message = command[3]
+            
+            amount = command[1]
+            address = command[2]
+            if amount == "all":
+                pass # Withdraw everything and delete wallet from DB
+            else:
+                try:
+                    amount = float(amount)
+                except:
+                    self.help(author)
+                    return
+                
+        ######################### Handle wallet command #########################
         elif main_cmd == "wallet":
             if len(command) > 1:
-                self.help()
+                self.help(author)
             else:
                 message.reply(str(author.wallet))
+        ######################### Handle unknown command #########################
         else:
-            self.help()
+            self.help(author)
 
     def handle_event(self, event: Union[Comment, Message]) -> Transaction:
         """
