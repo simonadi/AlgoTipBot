@@ -19,6 +19,8 @@ import qrcode
 
 from datetime import datetime
 
+from transactions import Transaction
+
 from templates import WALLET_REPR, WALLET_CREATED
 from rich.console import Console
 
