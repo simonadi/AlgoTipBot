@@ -92,6 +92,10 @@ class TipTransaction(Transaction):
                                                            "fee": self.fee,
                                                            "time": self.time})
 
+    def log(self):
+        """
+        """
+        pass
 
 @dataclass
 class WithdrawTransaction(Transaction):
@@ -147,3 +151,8 @@ class WithdrawTransaction(Transaction):
                                                           "transaction_id": self.tx_id,
                                                           "fee": self.fee,
                                                           "time": self.time})
+
+    def log(self):
+        """
+        """
+        pass
