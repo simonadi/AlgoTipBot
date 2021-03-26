@@ -38,7 +38,7 @@ class EventHandler:
             except:
                 self.help(author, command) # Tell them the format is invalid
             message = " ".join(command[3:])
-            autohr.send(receiver, amount, message)
+            author.send(receiver, amount, message)
         ######################### Handle withdraw command #########################
         elif main_cmd == "withdraw":
             if len(command) > 4:
