@@ -9,7 +9,7 @@ from utils import is_float, valid_user
 
 from rich.console import Console
 
-from templates import EVENT_RECEIVED, NEW_USER
+from templates import EVENT_RECEIVED, NEW_USER, USER_NOT_FOUND
 
 from clients import redis
 
@@ -57,12 +57,8 @@ class EventHandler:
             
             if not is_float(amount:=command.pop(0)): raise InvalidCommandError
 
-            if (amount:=float(amount)) > author.wallet.balance:
-                pass # Handle this differently
-                
             if not valid_user(username:=command.pop(0)):
-                pass
-                # Handle this differently
+                message.reply(USER_NOT_FOUND.substitute(username=username))
 
             receiver = User(username)
             note = " ".join(command)

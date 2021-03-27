@@ -32,3 +32,5 @@ INSUFFICIENT_FUNDS = Template("You tried to take $amount Algos out of your walle
                               " but you currently do not have enough funds to do this "
                               "transaction.\n\n"
                               "You can use `wallet` to get your address and fund your account")
+
+USER_NOT_FOUND = Template("Hey, I see that you tried to tip $username, but I can't find a redditor with that username.")
