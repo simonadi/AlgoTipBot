@@ -56,6 +56,11 @@ class TipTransaction(Transaction):
         """
         params = algod.suggested_params()
         self.fee = float(microalgos_to_algos(params.min_fee))
+
+        if (self.amount + self.fee) > self.sender.wallet.balance:
+            self.trigger_event.reply(INSUFFICIENT_FUNDS.substitue(balance=self.sender.wallet.balance,
+                                                                  amount=self.amount))
+
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,
                                     params.first,
@@ -124,7 +129,7 @@ class WithdrawTransaction(Transaction):
         self.fee = float(microalgos_to_algos(params.min_fee))
 
         if (not close_account) and (amount > (self.sender.wallet.balance + self.fee)):
-            self.trigger_event.reply(INSUFFICIENT_FUNDS.substitue(balance=sender.wallet.balance,
+            self.trigger_event.reply(INSUFFICIENT_FUNDS.substitue(balance=self.sender.wallet.balance,
                                                                   amount=amount))
 
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
