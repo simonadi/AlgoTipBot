@@ -29,10 +29,11 @@ class EventHandler:
         if author.new:
             comment.reply(NO_WALLET)
             return
-        receiver = User(comment.parent.author.name)
+        receiver = User(comment.parent().author.name)
         command = comment.body.split()
+        command.pop(0) # Get rid of the /u/AlgorandTipBot
 
-        if len(command) < 2: raise InvalidCommandError
+        if not command: raise InvalidCommandError # If command empty after popping username
         if not is_float(amount:=command.pop(0)): raise InvalidCommandError
 
         amount = float(amount)
