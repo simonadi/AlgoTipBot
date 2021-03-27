@@ -58,8 +58,9 @@ class TipTransaction(Transaction):
         self.fee = float(microalgos_to_algos(params.min_fee))
 
         if (self.amount + self.fee) > self.sender.wallet.balance:
-            self.trigger_event.author.message(INSUFFICIENT_FUNDS.substitute(balance=self.sender.wallet.balance,
-                                                                           amount=self.amount))
+            self.trigger_event.author.message("Insufficient funds", 
+                                              INSUFFICIENT_FUNDS.substitute(balance=self.sender.wallet.balance,
+                                                                            amount=self.amount))
 
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,
