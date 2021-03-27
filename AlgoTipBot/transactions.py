@@ -61,6 +61,7 @@ class TipTransaction(Transaction):
             self.trigger_event.author.message("Insufficient funds", 
                                               INSUFFICIENT_FUNDS.substitute(balance=self.sender.wallet.balance,
                                                                             amount=self.amount))
+            return None
 
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,
@@ -79,6 +80,8 @@ class TipTransaction(Transaction):
         self.tx_id = signed_tx.transaction.get_txid()
 
         console.log(f"Transaction of {self.amount} Algos sent by {self.sender.name} to {self.receiver.name}")
+
+        return self
 
     def confirmed(self):
         """
@@ -132,6 +135,7 @@ class WithdrawTransaction(Transaction):
         if (not close_account) and (amount > (self.sender.wallet.balance + self.fee)):
             self.trigger_event.reply(INSUFFICIENT_FUNDS.substitute(balance=self.sender.wallet.balance,
                                                                   amount=amount))
+            return None
 
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,
@@ -151,6 +155,8 @@ class WithdrawTransaction(Transaction):
         self.tx_id = signed_tx.transaction.get_txid()
 
         console.log(f"Transaction of {self.amount} Algos withdrawn by {self.sender.name} to address {self.destination}")
+
+        return self
 
     def confirmed(self):
         """

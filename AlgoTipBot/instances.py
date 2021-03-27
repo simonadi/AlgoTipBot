@@ -108,12 +108,10 @@ class User:
         """
         """
         transaction = TipTransaction(self, other_user, amount, note, event, anonymous)
-        transaction.send()
-        return transaction
+        return transaction.send()
 
     def withdraw(self, amount: str, address: float, note: str, event) -> Transaction:
         """
         """
         transaction = WithdrawTransaction(self, address, amount, note, event)
-        transaction.send()
-        return transaction
+        return transaction.send()

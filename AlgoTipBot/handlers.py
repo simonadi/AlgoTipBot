@@ -40,7 +40,7 @@ class EventHandler:
         note = " ".join(command)
 
         transaction = author.send(receiver, amount, note, comment)
-        self.unconfirmed_transactions.add(transaction)
+        if transaction is not None: self.unconfirmed_transactions.add(transaction)
 
     def handle_message(self, message: Message) -> None:
         """
@@ -68,7 +68,7 @@ class EventHandler:
             note = " ".join(command)
 
             transaction = author.send(receiver, amount, note, message, anonymous)
-            self.unconfirmed_transactions.add(transaction)
+            if transaction is not None: self.unconfirmed_transactions.add(transaction)
 
         ######################### Handle withdraw command #########################
         elif main_cmd == "withdraw":
@@ -78,7 +78,7 @@ class EventHandler:
             note = " ".join(command)
 
             transaction = author.withdraw(amount, address, note, message)
-            self.unconfirmed_transactions.add(transaction)
+            if transaction is not None: self.unconfirmed_transactions.add(transaction)
 
         ######################### Handle wallet command #########################
         elif main_cmd == "wallet":
