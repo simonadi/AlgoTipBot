@@ -5,7 +5,11 @@
 
 ## Get started
 
-If you plan on using this service to tip, you'll first have to setup your wallet. In order to do this, just click this [link](https://www.reddit.com/message/compose/?to=AlgorandTipBot&subject=NewAccount&message=wallet) and send the message. /u/AlgorandTipBot will send you a message with your public key (wallet address) and your mnemonic sentence. Please not these down, to make sure that you can recover your wallet. You can ask for the public/private key pair at any moment by sending `wallet` to /u/AlgorandTipBot in PM.
+If you plan on using this service to tip, you'll first have to setup your wallet. 
+
+In order to do this, just click this [link](https://www.reddit.com/message/compose/?to=AlgorandTipBot&subject=NewAccount&message=wallet) and send the message. /u/AlgorandTipBot will send you a message with your public key (wallet address) and your mnemonic sentence. 
+
+Please not these down, to make sure that you can recover your wallet. You can ask for the public/private key pair at any moment by sending `wallet` to /u/AlgorandTipBot in PM.
 
 Once you have your wallet address, fund your account, and check the balance using `walllet` to make sure that you received your Algos.
 
