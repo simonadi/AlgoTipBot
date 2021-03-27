@@ -46,7 +46,6 @@ def main():
         for event in reddit.inbox.unread():
             try:
                 new_transaction = event_handler.handle_event(event)
-                reddit.inbox.mark_read([event])
 
                 if new_transaction is not None:
                     unconfirmed_transactions.add(new_transaction)
@@ -58,7 +57,7 @@ def main():
                                               f"***{event.body}*** \n\n Please contact u/RedSwoosh to have it resolved")
                 console.log("An unknown issue occured")
                 traceback.print_exc()
-                exit()
+            reddit.inbox.mark_read([event])
 
         waiting = (waiting + 1) % 10 # To check the transctions every 10 iterations to not spam the Algo API
 
