@@ -25,7 +25,7 @@ algod = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ADDRESS, headers)
 
 ######################### Initialize Reddit connection #########################
 
-client = praw.Reddit(
+reddit = praw.Reddit(
             "AlgorandTipBot",
             user_agent="AlgoTipBot"
 )

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from clients import redis, algod, client
+from clients import redis, algod, reddit
 
 from typing import Union
 
@@ -9,9 +9,11 @@ from praw.models.reddit.message import Message
 from praw.models.reddit.comment import Comment
 
 from algosdk import transaction
-from algosdk.util import microalgos_to_algos
+from algosdk.util import microalgos_to_algos, algos_to_microalgos
 
 from time import time
+
+from templates import INSUFFICIENT_FUNDS
 
 from rich.console import Console
 
@@ -43,11 +45,12 @@ class TipTransaction(Transaction):
     amount: float
     message: str
     trigger_event: Union[Message, Comment]
+    anonymous: bool
     tx_id: str = None
     fee: float = None
     time: int = None
 
-    def send(self, close_account: bool = False):
+    def send(self):
         """
 
         """
@@ -59,9 +62,8 @@ class TipTransaction(Transaction):
                                     params.last,
                                     params.gh,
                                     self.receiver.wallet.public_key,
-                                    self.amount,
-                                    note=self.message,
-                                    close_remainder_to=None if not close_account else "close",
+                                    algos_to_microalgos(self.amount),
+                                    note=str.encode(self.message),
                                     flat_fee=True)
 
         signed_tx = tx.sign(self.sender.wallet.private_key)
@@ -85,7 +87,7 @@ class TipTransaction(Transaction):
         """
         redis.incr("tx_id")
         redis_tx_id = redis.get("tx_id")
-        redis.hset(f"algotip-transactions:{redis_tx_id}", {"sender": self.sender.name,
+        redis.hmset(f"algotip-transactions:{redis_tx_id}", {"sender": self.sender.name,
                                                            "receiver": self.receiver.name,
                                                            "amount": self.amount,
                                                            "transaction_id": self.tx_id,
@@ -96,6 +98,9 @@ class TipTransaction(Transaction):
         """
         """
         pass
+
+    def __hash__(self):
+        return hash(self.tx_id)
 
 @dataclass
 class WithdrawTransaction(Transaction):
@@ -108,20 +113,28 @@ class WithdrawTransaction(Transaction):
     fee: float = None
     time: int = None
 
-    def send(self, close_account: bool = False):
+    def send(self):
         """
 
         """
+        amount = self.sender.wallet.balance if self.amount == "all" else float(self.amount)
+        close_account = (amount == self.sender.wallet.balance)
+
         params = algod.suggested_params()
         self.fee = float(microalgos_to_algos(params.min_fee))
+
+        if (not close_account) and (amount > (self.sender.wallet.balance + self.fee)):
+            self.trigger_event.reply(INSUFFICIENT_FUNDS.substitue(balance=sender.wallet.balance,
+                                                                  amount=amount))
+
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,
                                     params.first,
                                     params.last,
                                     params.gh,
                                     self.destination,
-                                    self.amount,
-                                    note=self.message,
+                                    algos_to_microalgos(amount),
+                                    note=str.encode(self.message),
                                     close_remainder_to=None if not close_account else "close",
                                     flat_fee=True)
 
@@ -146,7 +159,7 @@ class WithdrawTransaction(Transaction):
         """
         redis.incr("tx_id")
         redis_tx_id = redis.get("tx_id")
-        redis.hset(f"algotip-withdrawals:{redis_tx_id}", {"user": self.sender.name,
+        redis.hmset(f"algotip-withdrawals:{redis_tx_id}", {"user": self.sender.name,
                                                           "amount": self.amount,
                                                           "transaction_id": self.tx_id,
                                                           "fee": self.fee,
@@ -156,3 +169,8 @@ class WithdrawTransaction(Transaction):
         """
         """
         pass
+
+    def __hash__(self):
+        """
+        """
+        return hash(self.tx_id)

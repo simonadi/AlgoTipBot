@@ -14,17 +14,19 @@ from transactions import Transaction, TipTransaction, WithdrawTransaction
 
 import qrcode
 
-from clients import redis, algod, client
+from clients import redis, algod, reddit
 
 from datetime import datetime
 
-from templates import WALLET_REPR, WALLET_CREATED
+from templates import WALLET_REPR, WALLET_CREATED, NEW_USER
 from rich.console import Console
 
 console = Console()
 
 @dataclass
 class Wallet:
+    """
+    """
     private_key: str
     public_key: str
 
@@ -87,10 +89,13 @@ class User:
 
         """
         self.name = name
+        self.new = False
 
         wallet = Wallet.load(name)
         if wallet is None:
+            self.new = True
             wallet = Wallet.generate()
+            reddit.redditor(name).message("Wallet created", NEW_USER.substitute(wallet=str(wallet)))
             console.log(WALLET_CREATED.substitute(user=name,
                                                   public_key=wallet.public_key))
 
@@ -98,16 +103,16 @@ class User:
         self.wallet.save(name)
 
 
-    def send(self, other_user: "User", amount: float, message: str) -> Transaction:
+    def send(self, other_user: "User", amount: float, note: str, event, anonymous: bool = False) -> Transaction:
         """
         """
-        transaction = TipTransaction(self, other_user, amount, message)
+        transaction = TipTransaction(self, other_user, amount, note, event, anonymous)
         transaction.send()
         return transaction
 
-    def withdraw(self, address: str, amount: float) -> Transaction:
+    def withdraw(self, amount: str, address: float, note: str, event) -> Transaction:
         """
-
         """
-        # transaction = WithdrawTransaction(self, )
-        pass
+        transaction = WithdrawTransaction(self, address, amount, note, event)
+        transaction.send()
+        return transaction
