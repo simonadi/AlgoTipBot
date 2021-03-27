@@ -2,3 +2,4 @@ praw.ini
 algo.code-workspace
 __pycache__
 .env
+test*

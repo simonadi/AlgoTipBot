@@ -1,5 +1,5 @@
 from algosdk.account import generate_account
-from algosdk.menmonic import from_private_key
+from algosdk.mnemonic import from_private_key
 from algosdk.v2client import algod
 from algosdk.util import microalgos_to_algos
 
