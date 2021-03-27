@@ -53,13 +53,15 @@ class EventHandler:
         ######################### Handle tip command #########################
         if main_cmd == "tip": # This whole check is ugly, make it nice
             if len(command) < 2: raise InvalidCommandError
-            if not valid_user(username:=command.pop(0)):
-                pass
-                # Handle this differently
+            
             if not is_float(amount:=command.pop(0)): raise InvalidCommandError
 
             if (amount:=float(amount)) > author.wallet.balance:
                 pass # Handle this differently
+                
+            if not valid_user(username:=command.pop(0)):
+                pass
+                # Handle this differently
 
             receiver = User(username)
             note = " ".join(command)

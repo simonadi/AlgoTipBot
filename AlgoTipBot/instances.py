@@ -1,4 +1,5 @@
 from algosdk.account import generate_account
+from algosdk.menmonic import from_private_key
 from algosdk.v2client import algod
 from algosdk.util import microalgos_to_algos
 
@@ -76,7 +77,7 @@ class Wallet:
     def __repr__(self) -> None:
         """
         """
-        return WALLET_REPR.substitute(private_key=self.private_key,
+        return WALLET_REPR.substitute(private_key=from_private_key(self.private_key),
                                       public_key=self.public_key,
                                       balance=self.balance,
                                       qr_code_link=self.qrcode)
