@@ -1,4 +1,4 @@
-<img src="images/logo.png" alt="logo" height="50"/>  <h1>AlgoTipBot</h1>
+<img src="images/logo.png" alt="logo" height="100"/>  <h1>AlgoTipBot</h1>
 
 
 **AlgoTipBot** is a service that allows redditors to tip each other with [Algos](https://www.algorand.com/). It is running through the reddit user [/u/AlgorandTipBot](https://www.reddit.com/user/AlgorandTipBot).
