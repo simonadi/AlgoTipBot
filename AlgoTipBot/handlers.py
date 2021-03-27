@@ -59,6 +59,7 @@ class EventHandler:
 
             if not valid_user(username:=command.pop(0)):
                 message.reply(USER_NOT_FOUND.substitute(username=username))
+                return
 
             receiver = User(username)
             note = " ".join(command)
