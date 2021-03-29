@@ -1,3 +1,6 @@
+[![GitHub Super-Linter](https://github.com/simonadi/AlgoTipBot/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+
+
 <img src="images/logo.png" alt="logo" height="100"/>  <h1>AlgoTipBot</h1>
 
 
@@ -5,9 +8,9 @@
 
 ## Get started
 
-If you plan on using this service to tip, you'll first have to setup your wallet. 
+If you plan on using this service to tip, you'll first have to setup your wallet.
 
-In order to do this, just click this [link](https://www.reddit.com/message/compose/?to=AlgorandTipBot&subject=NewAccount&message=wallet) and send the message. /u/AlgorandTipBot will send you a message with your public key (wallet address) and your mnemonic sentence. 
+In order to do this, just click this [link](https://www.reddit.com/message/compose/?to=AlgorandTipBot&subject=NewAccount&message=wallet) and send the message. /u/AlgorandTipBot will send you a message with your public key (wallet address) and your mnemonic sentence.
 
 Please not these down, to make sure that you can recover your wallet. You can ask for the public/private key pair at any moment by sending `wallet` to /u/AlgorandTipBot in PM.
 
@@ -19,7 +22,7 @@ You're now ready to tip !
 
 ### Private messages
 
-When [sending a PM](https://www.reddit.com/message/compose/?to=AlgorandTipBot) to /u/AlgorandTipBot, you can use these three commands : 
+When [sending a PM](https://www.reddit.com/message/compose/?to=AlgorandTipBot) to /u/AlgorandTipBot, you can use these three commands :
 
  - `wallet` : /u/AgorandTipBot will send you back a message containing your wallet information i.e. your keys and your current balance
  - `tip <amount> <user> <note>` \
@@ -34,6 +37,6 @@ When [sending a PM](https://www.reddit.com/message/compose/?to=AlgorandTipBot) t
 
 ### Comments
 
-At the moment /u/AlgorandTipBot only supports one command through comments, which is used to tip the person who wrote the comment/post that you're commenting. The format is simple : 
+At the moment /u/AlgorandTipBot only supports one command through comments, which is used to tip the person who wrote the comment/post that you're commenting. The format is simple :
 
 `/u/AlgorandTipBot <amount> <note>`
