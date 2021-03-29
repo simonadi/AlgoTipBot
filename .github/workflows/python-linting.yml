@@ -54,6 +54,7 @@ jobs:
           python3 -m venv .venv
           .venv/bin/pip install -r requirements.txt
 
+
       - name: Move the dependencies
         run: mv .venv /home/runner/work/_temp/_github_workflow
 
@@ -63,7 +64,7 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v3
         env:
-          PYTHONPATH: "/github/workspace/:/github/workflow/.venv/lib/python3.6/site-packages"
+          PYTHONPATH: "/github/workspace/:/github/workflow/.venv/lib/python3.8/site-packages"
           LINTER_RULES_PATH: .
           PYTHON_PYLINT_CONFIG_FILE: .pylintrc
           VALIDATE_PYTHON_BLACK: false
