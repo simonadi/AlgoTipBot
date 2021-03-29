@@ -1,13 +1,17 @@
-from rich.console import Console
+"""
+File containing the main loop
+"""
 
-from time import time, sleep
+import traceback
+from time import sleep
 
 from handlers import EventHandler, InvalidCommandError
-
-from transactions import TipTransaction, WithdrawTransaction
 from instances import reddit
-import traceback
-from templates import TRANSACTION_CONFIRMATION, TIP_RECEIVED, NEW_USER, WITHDRAWAL_CONFIRMATION, INVALID_COMMAND
+from rich.console import Console
+from templates import (INVALID_COMMAND, TIP_RECEIVED, TRANSACTION_CONFIRMATION,
+                       WITHDRAWAL_CONFIRMATION)
+from transactions import TipTransaction, WithdrawTransaction
+from utils import stream
 
 console = Console()
 
@@ -25,44 +29,25 @@ def main():
                 if transaction.confirmed():
                     console.log(f'Transaction {transaction.tx_id} confirmed')
 
-
-                    if isinstance(transaction, TipTransaction):
-                        transaction.trigger_event.reply(TRANSACTION_CONFIRMATION.substitute(amount=transaction.amount,
-                                                                                            receiver=transaction.receiver.name))
-
-                        reddit.redditor(transaction.receiver.name).message(
-                            subject="AlgoTip",
-                            message=TIP_RECEIVED.substitute(sender=transaction.sender.name if not transaction.anonymous else "An anonymous redditor",
-                                                            amount=transaction.amount)
-                        )
-
-                    elif isinstance(transaction, WithdrawTransaction):
-                        transaction.trigger_event.reply(WITHDRAWAL_CONFIRMATION.substitute(amount=transaction.amount,
-                                                                                          address=transaction.destination))
-
-                    event_handler.unconfirmed_transactions.remove(transaction)
+                    transaction.send_confirmation()
                     transaction.save()
+                    event_handler.unconfirmed_transactions.remove(transaction)
 
-        for event in reddit.inbox.unread():
+        for event in stream():
             try:
-                new_transaction = event_handler.handle_event(event)
-
-                if new_transaction is not None:
-                    unconfirmed_transactions.add(new_transaction)
-
+                event_handler.handle_event(event)
             except InvalidCommandError:
                 event.reply(INVALID_COMMAND)
-            except Exception as e:
+            except Exception: #pylint: disable=W0703
                 event.author.message("Issue", "Hello, I'm sorry but an unknown issue occured when handling\n\n "
-                                              f"***{event.body}*** \n\n Please contact u/RedSwoosh to have it resolved")
+                                             f"***{event.body}*** \n\n Please contact u/RedSwoosh to have it resolved")
                 console.log("An unknown issue occured")
                 traceback.print_exc()
             reddit.inbox.mark_read([event])
 
-        waiting = (waiting + 1) % 10 # To check the transctions every 10 iterations to not spam the Algo API
+        waiting = (waiting + 1) % 5
 
-        sleep(0.1)
-
+        sleep(0.5)
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,13 @@
 """
-TODO
+Utility functions
 """
+
 from clients import reddit
+from prawcore.exceptions import NotFound
+
+COMMENT_COMMANDS = {"!atip"}
+SUBREDDITS = {"algorand", "algorandofficial", "cryptocurrency", "bottesting"}
+COMMENT_CACHE = set()
 
 def is_float(value: str) -> bool:
     """
@@ -38,3 +44,18 @@ def valid_user(username: str) -> bool:
     except NotFound:
         return False
     return True
+
+def stream():
+    """
+    Fetches the unread items in the inbox and all comments in the
+    targeted subreddits that contain an AlgoTip command
+    Adds the comments to a cache to know which ones were already dealt with
+    """
+    inbox_unread = set(reddit.inbox.unread())
+    comments = {comment for comment in reddit.subreddit("+".join(SUBREDDITS)).comments(limit=100)
+                        if any(command in comment.body for command in COMMENT_COMMANDS)
+                        and comment.id not in COMMENT_CACHE}
+
+    COMMENT_CACHE.update({comment.id for comment in comments})
+
+    return set.union(inbox_unread, comments)

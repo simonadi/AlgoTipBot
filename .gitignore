@@ -3,3 +3,5 @@ algo.code-workspace
 __pycache__
 .env
 test*
+.vscode
+.mypy_cache

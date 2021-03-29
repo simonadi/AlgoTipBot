@@ -1,26 +1,14 @@
-from algosdk.account import generate_account
-from algosdk.mnemonic import from_private_key
-from algosdk.v2client import algod
-from algosdk.util import microalgos_to_algos
-
-from typing import Union
-
 from dataclasses import dataclass
-
-from redis import Redis
-
-import praw
-
-from transactions import Transaction, TipTransaction, WithdrawTransaction
+from typing import Union, Optional
 
 import qrcode
-
-from clients import redis, algod, reddit
-
-from datetime import datetime
-
-from templates import WALLET_REPR, WALLET_CREATED, NEW_USER
+from algosdk.account import generate_account
+from algosdk.mnemonic import from_private_key
+from algosdk.util import microalgos_to_algos
+from clients import algod, reddit, redis
 from rich.console import Console
+from templates import NEW_USER, WALLET_CREATED, WALLET_REPR
+from transactions import TipTransaction, Transaction, WithdrawTransaction
 
 console = Console()
 
@@ -40,7 +28,7 @@ class Wallet:
         return cls(private_key, public_key)
 
     @classmethod
-    def load(cls, username: str) -> "Wallet":
+    def load(cls, username: str) -> Optional["Wallet"]:
         """
 
         """
@@ -74,7 +62,7 @@ class Wallet:
         balance = float(microalgos_to_algos(account_info["amount"]))
         return balance
 
-    def __repr__(self) -> None:
+    def __repr__(self) -> str:
         """
         """
         return WALLET_REPR.substitute(private_key=from_private_key(self.private_key),
@@ -110,8 +98,19 @@ class User:
         transaction = TipTransaction(self, other_user, amount, note, event, anonymous)
         return transaction.send()
 
-    def withdraw(self, amount: str, address: float, note: str, event) -> Transaction:
+    def withdraw(self, amount: float, address: str, note: str, event) -> Transaction:
         """
+
         """
         transaction = WithdrawTransaction(self, address, amount, note, event)
         return transaction.send()
+
+    def message(self, subject: str, message: str) -> None:
+        """
+        Messages the user on Reddit
+
+        Arguments:
+            subject (str):
+            message (str):
+        """
+        reddit.redditor(self.name).message(subject, message)

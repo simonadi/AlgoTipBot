@@ -1,3 +1,7 @@
+"""
+File containing message templates
+"""
+
 from string import Template
 
 TRANSACTION_CONFIRMATION = Template("Your tip to $receiver for $amount Algos was successfuly sent")
