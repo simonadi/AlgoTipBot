@@ -1,9 +1,10 @@
-from AlgoTipBot.instances import User, Wallet
-from AlgoTipBot.clients import algod
+import os
 
 from algosdk.util import microalgos_to_algos
 
-import os
+from AlgoTipBot.clients import algod
+from AlgoTipBot.instances import User
+from AlgoTipBot.instances import Wallet
 
 WALLET1_PRIVATE_KEY = os.environ["WALLET1_PRIVATE_KEY"]
 WALLET1_PUBLIC_KEY = os.environ["WALLET1_PUBLIC_KEY"]

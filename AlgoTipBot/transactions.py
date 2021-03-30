@@ -1,20 +1,27 @@
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 from dataclasses import dataclass
 from time import time
-from typing import Union, Optional
+from typing import TYPE_CHECKING
+from typing import Optional
+from typing import Union
 
 from algosdk import transaction
-from algosdk.util import algos_to_microalgos, microalgos_to_algos
-from clients import algod, reddit, redis
-from praw.models.reddit.comment import Comment
-from praw.models.reddit.message import Message
-from rich.console import Console
-from templates import (INSUFFICIENT_FUNDS, TIP_RECEIVED,
-                       TRANSACTION_CONFIRMATION, WITHDRAWAL_CONFIRMATION)
+from algosdk.util import algos_to_microalgos
+from algosdk.util import microalgos_to_algos
+from clients import algod
+from clients import console
+from clients import redis
+from errors import InsufficientFundsError
+from errors import ZeroTransactionError
+from templates import INSUFFICIENT_FUNDS
+from templates import TIP_RECEIVED
+from templates import TRANSACTION_CONFIRMATION
+from templates import WITHDRAWAL_CONFIRMATION
 
-console = Console()
-
-
+if TYPE_CHECKING:
+    from praw.models.reddit.comment import Comment
+    from praw.models.reddit.message import Message
 
 class Transaction(ABC):
     """
@@ -78,15 +85,9 @@ class TipTransaction(Transaction):
         params = algod.suggested_params()
         self.fee = float(microalgos_to_algos(params.min_fee))
 
-        if self.amount < 1e-6:
-            # Say that this is a zeo transaction
-            return None
+        if self.amount < 1e-6: raise ZeroTransactionError
 
-        if (self.amount + self.fee + 0.1) > self.sender.wallet.balance:
-            self.trigger_event.author.message("Insufficient funds",
-                                              INSUFFICIENT_FUNDS.substitute(balance=self.sender.wallet.balance,
-                                                                            amount=self.amount))
-            return None
+        if (self.amount + self.fee + 0.1) > self.sender.wallet.balance: raise InsufficientFundsError
 
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,
@@ -183,10 +184,10 @@ class WithdrawTransaction(Transaction):
         params = algod.suggested_params()
         self.fee = float(microalgos_to_algos(params.min_fee))
 
-        if (not close_account) and (0.1 + amount > (self.sender.wallet.balance + self.fee)):
-            self.trigger_event.reply(INSUFFICIENT_FUNDS.substitute(balance=self.sender.wallet.balance,
-                                                                  amount=amount))
-            return None
+        if self.amount < 1e-6: raise ZeroTransactionError
+
+        if (self.amount + self.fee + (int(close_account)*0.1)) > self.sender.wallet.balance:
+            raise InsufficientFundsError
 
         if close_account:
             redis.delete(f"algotip-wallets:{self.sender.name}")

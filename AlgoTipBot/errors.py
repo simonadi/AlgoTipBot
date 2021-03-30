@@ -4,7 +4,7 @@ TODO
 
 class InvalidCommandError(Exception):
     def __init__(self, command: str) -> None:
-        selF.command = command
+        self.command = command
 
 class ZeroTransactionError(Exception):
     pass
@@ -12,3 +12,7 @@ class ZeroTransactionError(Exception):
 class InsufficientFundsError(Exception):
     def __init__(self, amount: float, balance: float) -> None:
         self.amount, self.balance = amount, balance
+
+class InvalidUserError(Exception):
+    def __init__(self, username: str) -> None:
+        self.username = username

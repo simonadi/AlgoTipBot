@@ -5,9 +5,16 @@ from instances import User
 from praw.models.reddit.comment import Comment
 from praw.models.reddit.message import Message
 from rich.console import Console
-from templates import EVENT_RECEIVED, NEW_USER, USER_NOT_FOUND, NO_WALLET
-from transactions import Transaction
-from utils import is_float, valid_user
+
+from AlgoTipBot.errors import InsufficientFundsError
+from AlgoTipBot.errors import ZeroTransactionError
+from AlgoTipBot.templates import EVENT_RECEIVED
+from AlgoTipBot.templates import NEW_USER
+from AlgoTipBot.templates import NO_WALLET
+from AlgoTipBot.templates import USER_NOT_FOUND
+from AlgoTipBot.transactions import Transaction
+from AlgoTipBot.utils import is_float
+from AlgoTipBot.utils import valid_user
 
 console = Console()
 
@@ -34,9 +41,16 @@ class EventHandler:
         amount = float(amount)
         note = " ".join(command)
 
-        transaction = author.send(receiver, amount, note, comment)
-        if transaction is not None: self.unconfirmed_transactions.add(transaction)
-
+        try:
+            transaction = author.send(receiver, amount, note, comment)
+            self.unconfirmed_transactions.add(transaction)
+        except ZeroTransactionError:
+            author.message("Zero transaction",
+                           ZERO_TRANSACTION)
+        except InsufficientFundsError as e:
+            author.message("Insufficient funds",
+                           INSUFFICIENT_FUNDS.substitute(balance=e.balance,
+                                                         amount=e.amount))
     def handle_message(self, message: Message) -> None:
         """
         Parses the incoming message to determine what action to take
@@ -52,16 +66,22 @@ class EventHandler:
 
             if not is_float(amount:=command.pop(0)): raise InvalidCommandError
 
-            if not valid_user(username:=command.pop(0)):
-                message.reply(USER_NOT_FOUND.substitute(username=username))
-                return
+            if not valid_user(username:=command.pop(0)): raise InvalidUserError(username)
 
             amount = float(amount)
             receiver = User(username)
             note = " ".join(command)
 
-            transaction = author.send(receiver, amount, note, message, anonymous)
-            if transaction is not None: self.unconfirmed_transactions.add(transaction)
+            try:
+                transaction = author.send(receiver, amount, note, message, anonymous)
+                self.unconfirmed_transactions.add(transaction)
+            except ZeroTransactionError:
+                author.message("Zero transaction",
+                               ZERO_TRANSACTION)
+            except InsufficientFundsError as e:
+                author.message("Insufficient funds",
+                               INSUFFICIENT_FUNDS.substitute(balance=e.balance,
+                                                             amount=e.amount))
 
         ######################### Handle withdraw command #########################
         elif main_cmd == "withdraw":

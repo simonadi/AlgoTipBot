@@ -5,12 +5,17 @@ File containing the main loop
 import traceback
 from time import sleep
 
-from handlers import EventHandler, InvalidCommandError
+from errors import InvalidUserError
+from handlers import EventHandler
+from handlers import InvalidCommandError
 from instances import reddit
 from rich.console import Console
-from templates import (INVALID_COMMAND, TIP_RECEIVED, TRANSACTION_CONFIRMATION,
-                       WITHDRAWAL_CONFIRMATION)
-from transactions import TipTransaction, WithdrawTransaction
+from templates import INVALID_COMMAND
+from templates import TIP_RECEIVED
+from templates import TRANSACTION_CONFIRMATION
+from templates import WITHDRAWAL_CONFIRMATION
+from transactions import TipTransaction
+from transactions import WithdrawTransaction
 from utils import stream
 
 console = Console()
@@ -27,17 +32,17 @@ def main():
         if not waiting:
             for transaction in event_handler.unconfirmed_transactions.copy():
                 if transaction.confirmed():
-                    console.log(f'Transaction {transaction.tx_id} confirmed')
-
                     transaction.send_confirmation()
-                    transaction.save()
+                    transaction.log()
                     event_handler.unconfirmed_transactions.remove(transaction)
 
         for event in stream():
             try:
                 event_handler.handle_event(event)
             except InvalidCommandError:
-                event.reply(INVALID_COMMAND)
+                event.author.message("Invalid Command", INVALID_COMMAND)
+            except InvalidUserError as e:
+                event.author.message("User not found", USER_NOT_FOUND.substitute(username=e.username))
             except Exception: #pylint: disable=W0703
                 event.author.message("Issue", "Hello, I'm sorry but an unknown issue occured when handling\n\n "
                                              f"***{event.body}*** \n\n Please contact u/RedSwoosh to have it resolved")

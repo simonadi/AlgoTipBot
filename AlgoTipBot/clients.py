@@ -10,6 +10,7 @@ import os
 import praw
 from algosdk.v2client import algod
 from redis import Redis
+from rich.console import Console
 
 ######################### Initialize Redis connection #########################
 
@@ -40,3 +41,7 @@ reddit = praw.Reddit(
             "AlgorandTipBot",
             user_agent="AlgoTipBot"
 )
+
+######################### Initialize Rich console #########################
+
+console = Console()
