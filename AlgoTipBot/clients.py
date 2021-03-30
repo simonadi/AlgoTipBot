@@ -22,13 +22,15 @@ redis = Redis(password=REDIS_PW, decode_responses=True) # decode_responses is us
 
 # Get API key from the environment variables and initialize the client
 ALGOD_TOKEN = os.environ.get("ALGOD_TOKEN")
-ALGOD_ADDRESS = "https://testnet-algorand.api.purestake.io/ps2"
+NETWORK = os.environ.get("NETWORK")
+
+algod_address = f"https://{NETWORK}-algorand.api.purestake.io/ps2"
 
 headers = {
     "x-api-key": ALGOD_TOKEN
 }
 
-algod = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ADDRESS, headers)
+algod = algod.AlgodClient(ALGOD_TOKEN, algod_address, headers)
 
 
 ######################### Initialize Reddit connection #########################

@@ -14,6 +14,8 @@ from templates import (INSUFFICIENT_FUNDS, TIP_RECEIVED,
 
 console = Console()
 
+
+
 class Transaction(ABC):
     """
     Abstract class to define the methods required for a
@@ -75,6 +77,10 @@ class TipTransaction(Transaction):
         """
         params = algod.suggested_params()
         self.fee = float(microalgos_to_algos(params.min_fee))
+
+        if self.amount < 1e-6:
+            # Say that this is a zeo transaction
+            return None
 
         if (self.amount + self.fee + 0.1) > self.sender.wallet.balance:
             self.trigger_event.author.message("Insufficient funds",

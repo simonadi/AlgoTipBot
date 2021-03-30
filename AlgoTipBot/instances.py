@@ -73,14 +73,15 @@ class Wallet:
 class User:
     """
     """
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, wallet: Wallet = None) -> None:
         """
 
         """
         self.name = name
         self.new = False
 
-        wallet = Wallet.load(name)
+        if wallet is None: wallet = Wallet.load(name)
+
         if wallet is None:
             self.new = True
             wallet = Wallet.generate()
@@ -88,8 +89,10 @@ class User:
             console.log(WALLET_CREATED.substitute(user=name,
                                                   public_key=wallet.public_key))
 
+            wallet.save(name)
+
         self.wallet = wallet
-        self.wallet.save(name)
+
 
 
     def send(self, other_user: "User", amount: float, note: str, event, anonymous: bool = False) -> Transaction:

@@ -9,10 +9,6 @@ from templates import EVENT_RECEIVED, NEW_USER, USER_NOT_FOUND, NO_WALLET
 from transactions import Transaction
 from utils import is_float, valid_user
 
-
-class InvalidCommandError(Exception):
-    pass
-
 console = Console()
 
 class EventHandler:
