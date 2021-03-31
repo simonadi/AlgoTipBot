@@ -1,6 +1,5 @@
 praw.ini
 algo.code-workspace
-__pycache__
+*cache*
 .env
 .vscode
-.mypy_cache

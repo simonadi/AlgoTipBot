@@ -36,10 +36,19 @@ algod = algod.AlgodClient(ALGOD_TOKEN, algod_address, headers)
 
 ######################### Initialize Reddit connection #########################
 
+CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
+CLIENT_ID = os.environ.get("CLIENT_ID")
+PASSWORD = os.environ.get("PASSWORD")
+USERNAME = os.environ.get("USERNAME")
+USER_AGENT = os.environ.get("USER_AGENT")
+
 # Fetches information from the praw.ini file
 reddit = praw.Reddit(
-            "AlgorandTipBot",
-            user_agent="AlgoTipBot"
+            client_id=CLIENT_ID,
+            client_secret=CLIENT_SECRET,
+            password=PASSWORD,
+            username=USERNAME,
+            user_agent=USER_AGENT
 )
 
 ######################### Initialize Rich console #########################
