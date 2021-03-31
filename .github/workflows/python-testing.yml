@@ -38,3 +38,4 @@ jobs:
         WALLET1_PRIVATE_KEY: ${{ secrets.WALLET1_PRIVATE_KEY }}
         WALLET2_PUBLIC_KEY: ${{ secrets.WALLET2_PUBLIC_KEY }}
         WALLET2_PRIVATE_KEY: ${{ secrets.WALLET2_PRIVATE_KEY }}
+        ALGOD_TOKEN: ${{ secrets.ALGOD_TOKEN }}
