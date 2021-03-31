@@ -1,5 +1,5 @@
 [![GitHub Super-Linter](https://github.com/simonadi/AlgoTipBot/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
-
+[![Python Testing](https://github.com/simonadi/AlgoTipBot/actions/workflows/python-testing.yml/badge.svg?branch=master)](https://github.com/simonadi/AlgoTipBot/actions/workflows/python-testing.yml)
 
 <img src="images/logo.png" alt="logo" height="100"/>  <h1>AlgoTipBot</h1>
 
