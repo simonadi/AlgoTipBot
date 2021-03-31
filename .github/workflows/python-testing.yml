@@ -34,7 +34,7 @@ jobs:
         PASSWORD: ${{ secrets.PASSWORD }}
         USERNAME: ${{ secrets.USERNAME }}
         USER_AGENT: ${{ secrets.USER_AGENT }}
-        WALLLET1_PUBLIC_KEY: ${{ secrets.WALLLET1_PUBLIC_KEY }}
+        WALLET1_PUBLIC_KEY: ${{ secrets.WALLET1_PUBLIC_KEY }}
         WALLET1_PRIVATE_KEY: ${{ secrets.WALLET1_PRIVATE_KEY }}
         WALLET2_PUBLIC_KEY: ${{ secrets.WALLET2_PUBLIC_KEY }}
         WALLET2_PRIVATE_KEY: ${{ secrets.WALLET2_PRIVATE_KEY }}
