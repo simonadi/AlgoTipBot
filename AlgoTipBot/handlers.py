@@ -1,13 +1,13 @@
 from typing import Union
 
-from clients import redis
-from instances import User
 from praw.models.reddit.comment import Comment
 from praw.models.reddit.message import Message
 from rich.console import Console
 
+from AlgoTipBot.clients import redis
 from AlgoTipBot.errors import InsufficientFundsError
 from AlgoTipBot.errors import ZeroTransactionError
+from AlgoTipBot.instances import User
 from AlgoTipBot.templates import EVENT_RECEIVED
 from AlgoTipBot.templates import NEW_USER
 from AlgoTipBot.templates import NO_WALLET

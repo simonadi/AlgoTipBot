@@ -5,18 +5,18 @@ File containing the main loop
 import traceback
 from time import sleep
 
-from errors import InvalidUserError
-from handlers import EventHandler
-from handlers import InvalidCommandError
 from instances import reddit
 from rich.console import Console
-from templates import INVALID_COMMAND
-from templates import TIP_RECEIVED
-from templates import TRANSACTION_CONFIRMATION
-from templates import WITHDRAWAL_CONFIRMATION
-from transactions import TipTransaction
-from transactions import WithdrawTransaction
-from utils import stream
+
+from AlgoTipBot.errors import InvalidUserError
+from AlgoTipBot.handlers import EventHandler
+from AlgoTipBot.templates import INVALID_COMMAND
+from AlgoTipBot.templates import TIP_RECEIVED
+from AlgoTipBot.templates import TRANSACTION_CONFIRMATION
+from AlgoTipBot.templates import WITHDRAWAL_CONFIRMATION
+from AlgoTipBot.transactions import TipTransaction
+from AlgoTipBot.transactions import WithdrawTransaction
+from AlgoTipBot.utils import stream
 
 console = Console()
 

@@ -2,12 +2,14 @@
 Utility functions
 """
 
-from clients import reddit, algod
 from prawcore.exceptions import NotFound
+
+from AlgoTipBot.clients import algod
+from AlgoTipBot.clients import reddit
+from AlgoTipBot.clients import redis
 
 COMMENT_COMMANDS = {"!atip"}
 SUBREDDITS = {"algorand", "algorandofficial", "cryptocurrency", "bottesting"}
-COMMENT_CACHE = set()
 
 def is_float(value: str) -> bool:
     """
@@ -52,11 +54,12 @@ def stream():
     Adds the comments to a cache to know which ones were already dealt with
     """
     inbox_unread = set(reddit.inbox.unread())
+    comment_cache = redis.smembers("comment-cache")
     comments = {comment for comment in reddit.subreddit("+".join(SUBREDDITS)).comments(limit=100)
                         if any(command in comment.body for command in COMMENT_COMMANDS)
-                        and comment.id not in COMMENT_CACHE}
+                        and comment.id not in comment_cache}
 
-    COMMENT_CACHE.update({comment.id for comment in comments})
+    comment_cache.sadd("comment-cache", *{comment.id for comment in comments})
 
     return set.union(inbox_unread, comments)
 

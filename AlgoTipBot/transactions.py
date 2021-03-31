@@ -9,19 +9,19 @@ from typing import Union
 from algosdk import transaction
 from algosdk.util import algos_to_microalgos
 from algosdk.util import microalgos_to_algos
-from clients import algod
-from clients import console
-from clients import redis
-from errors import InsufficientFundsError
-from errors import ZeroTransactionError
-from templates import INSUFFICIENT_FUNDS
-from templates import TIP_RECEIVED
-from templates import TRANSACTION_CONFIRMATION
-from templates import WITHDRAWAL_CONFIRMATION
+from praw.models.reddit.comment import Comment
+from praw.models.reddit.message import Message
 
-if TYPE_CHECKING:
-    from praw.models.reddit.comment import Comment
-    from praw.models.reddit.message import Message
+from AlgoTipBot.clients import algod
+from AlgoTipBot.clients import console
+from AlgoTipBot.clients import redis
+from AlgoTipBot.errors import InsufficientFundsError
+from AlgoTipBot.errors import ZeroTransactionError
+from AlgoTipBot.templates import INSUFFICIENT_FUNDS
+from AlgoTipBot.templates import TIP_RECEIVED
+from AlgoTipBot.templates import TRANSACTION_CONFIRMATION
+from AlgoTipBot.templates import WITHDRAWAL_CONFIRMATION
+
 
 class Transaction(ABC):
     """
@@ -87,7 +87,8 @@ class TipTransaction(Transaction):
 
         if self.amount < 1e-6: raise ZeroTransactionError
 
-        if (self.amount + self.fee + 0.1) > self.sender.wallet.balance: raise InsufficientFundsError
+        if (self.amount + self.fee + 0.1) > self.sender.wallet.balance: raise InsufficientFundsError(self.amount,
+                                                                                                     self.sender.wallet.balance)
 
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,
@@ -187,7 +188,7 @@ class WithdrawTransaction(Transaction):
         if self.amount < 1e-6: raise ZeroTransactionError
 
         if (self.amount + self.fee + (int(close_account)*0.1)) > self.sender.wallet.balance:
-            raise InsufficientFundsError
+            raise InsufficientFundsError(self.amount, self.sender.wallet.balance)
 
         if close_account:
             redis.delete(f"algotip-wallets:{self.sender.name}")

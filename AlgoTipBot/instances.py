@@ -1,14 +1,22 @@
 from dataclasses import dataclass
-from typing import Union, Optional
+from typing import Optional
+from typing import Union
 
 import qrcode
 from algosdk.account import generate_account
 from algosdk.mnemonic import from_private_key
 from algosdk.util import microalgos_to_algos
-from clients import algod, reddit, redis
 from rich.console import Console
-from templates import NEW_USER, WALLET_CREATED, WALLET_REPR
-from transactions import TipTransaction, Transaction, WithdrawTransaction
+
+from AlgoTipBot.clients import algod
+from AlgoTipBot.clients import reddit
+from AlgoTipBot.clients import redis
+from AlgoTipBot.templates import NEW_USER
+from AlgoTipBot.templates import WALLET_CREATED
+from AlgoTipBot.templates import WALLET_REPR
+from AlgoTipBot.transactions import TipTransaction
+from AlgoTipBot.transactions import Transaction
+from AlgoTipBot.transactions import WithdrawTransaction
 
 console = Console()
 
