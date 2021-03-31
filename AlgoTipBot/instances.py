@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Optional
 from typing import Union
 
-import qrcode
 from algosdk.account import generate_account
 from algosdk.mnemonic import from_private_key
 from algosdk.util import microalgos_to_algos
