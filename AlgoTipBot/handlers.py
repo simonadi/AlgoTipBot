@@ -2,8 +2,8 @@ from typing import Union
 
 from praw.models.reddit.comment import Comment
 from praw.models.reddit.message import Message
-from rich.console import Console
 
+from AlgoTipBot.clients import console
 from AlgoTipBot.clients import redis
 from AlgoTipBot.errors import InsufficientFundsError
 from AlgoTipBot.errors import ZeroTransactionError
@@ -16,7 +16,6 @@ from AlgoTipBot.transactions import Transaction
 from AlgoTipBot.utils import is_float
 from AlgoTipBot.utils import valid_user
 
-console = Console()
 
 class EventHandler:
     unconfirmed_transactions: set = set()

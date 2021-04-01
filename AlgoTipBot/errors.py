@@ -16,3 +16,7 @@ class InsufficientFundsError(Exception):
 class InvalidUserError(Exception):
     def __init__(self, username: str) -> None:
         self.username = username
+
+class FirstTransactionError(Exception):
+    def __init__(self, amount: float) -> None:
+        self.amount = amount

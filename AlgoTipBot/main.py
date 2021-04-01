@@ -6,8 +6,8 @@ import traceback
 from time import sleep
 
 from instances import reddit
-from rich.console import Console
 
+from AlgoTipBot.clients import console
 from AlgoTipBot.errors import InvalidUserError
 from AlgoTipBot.handlers import EventHandler
 from AlgoTipBot.templates import INVALID_COMMAND
@@ -17,8 +17,6 @@ from AlgoTipBot.templates import WITHDRAWAL_CONFIRMATION
 from AlgoTipBot.transactions import TipTransaction
 from AlgoTipBot.transactions import WithdrawTransaction
 from AlgoTipBot.utils import stream
-
-console = Console()
 
 event_handler = EventHandler()
 

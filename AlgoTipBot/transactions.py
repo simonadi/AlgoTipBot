@@ -15,6 +15,7 @@ from praw.models.reddit.message import Message
 from AlgoTipBot.clients import algod
 from AlgoTipBot.clients import console
 from AlgoTipBot.clients import redis
+from AlgoTipBot.errors import FirstTransactionError
 from AlgoTipBot.errors import InsufficientFundsError
 from AlgoTipBot.errors import ZeroTransactionError
 from AlgoTipBot.templates import INSUFFICIENT_FUNDS
@@ -89,6 +90,9 @@ class TipTransaction(Transaction):
 
         if (self.amount + self.fee + 0.1) > self.sender.wallet.balance: raise InsufficientFundsError(self.amount,
                                                                                                      self.sender.wallet.balance)
+
+        if self.receiver.wallet.balance == 0 and amount < 0.1:
+            raise FirstTransactionError(amount)
 
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,
@@ -188,7 +192,10 @@ class WithdrawTransaction(Transaction):
         if self.amount < 1e-6: raise ZeroTransactionError
 
         if (self.amount + self.fee + (int(close_account)*0.1)) > self.sender.wallet.balance:
-            raise InsufficientFundsError(self.amount, self.sender.wallet.balance)
+            raise InsufficientFundsError(amount, self.sender.wallet.balance)
+
+        if Wallet("", self.destination).balance == 0 and amount < 0.1:
+            raise FirstTransactionError(amount)
 
         if close_account:
             redis.delete(f"algotip-wallets:{self.sender.name}")

@@ -5,9 +5,9 @@ from typing import Union
 from algosdk.account import generate_account
 from algosdk.mnemonic import from_private_key
 from algosdk.util import microalgos_to_algos
-from rich.console import Console
 
 from AlgoTipBot.clients import algod
+from AlgoTipBot.clients import console
 from AlgoTipBot.clients import reddit
 from AlgoTipBot.clients import redis
 from AlgoTipBot.templates import NEW_USER
@@ -17,7 +17,6 @@ from AlgoTipBot.transactions import TipTransaction
 from AlgoTipBot.transactions import Transaction
 from AlgoTipBot.transactions import WithdrawTransaction
 
-console = Console()
 
 @dataclass
 class Wallet:
