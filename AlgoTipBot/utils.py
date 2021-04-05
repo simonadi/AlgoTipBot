@@ -47,6 +47,23 @@ def valid_user(username: str) -> bool:
         return False
     return True
 
+def valid_subreddit(subreddit: str) -> bool:
+    """
+    Checks whether or not the subreddit name is valid
+
+    Args:
+        subreddit: subreddit name to check
+    Returns:
+        Boolean:
+            True if subreddit exists
+            False otherwise
+    """
+    try:
+        reddit.subreddits.search_by_name(subreddit, exact=True)
+    except NotFound:
+        return False
+    return True
+
 def stream():
     """
     Fetches the unread items in the inbox and all comments in the
@@ -59,7 +76,8 @@ def stream():
                         if any(command in comment.body for command in COMMENT_COMMANDS)
                         and comment.id not in comment_cache}
 
-    comment_cache.sadd("comment-cache", *{comment.id for comment in comments})
+    if comments:
+        redis.sadd("comment-cache", *{comment.id for comment in comments})
 
     return set.union(inbox_unread, comments)
 

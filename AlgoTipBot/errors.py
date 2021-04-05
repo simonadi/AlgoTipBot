@@ -20,3 +20,10 @@ class InvalidUserError(Exception):
 class FirstTransactionError(Exception):
     def __init__(self, amount: float) -> None:
         self.amount = amount
+
+class InvalidSubredditError(Exception):
+    def __init__(self, subreddit: str) -> None:
+        self.subreddit = subreddit
+
+class NotModeratorError(Exception):
+    pass

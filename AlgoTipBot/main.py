@@ -8,14 +8,17 @@ from time import sleep
 from instances import reddit
 
 from AlgoTipBot.clients import console
+from AlgoTipBot.errors import InvalidCommandError
+from AlgoTipBot.errors import InvalidSubredditError
 from AlgoTipBot.errors import InvalidUserError
+from AlgoTipBot.errors import NotModeratorError
 from AlgoTipBot.handlers import EventHandler
 from AlgoTipBot.templates import INVALID_COMMAND
+from AlgoTipBot.templates import NOT_MODERATOR
+from AlgoTipBot.templates import SUBREDDIT_NOT_FOUND
 from AlgoTipBot.templates import TIP_RECEIVED
 from AlgoTipBot.templates import TRANSACTION_CONFIRMATION
 from AlgoTipBot.templates import WITHDRAWAL_CONFIRMATION
-from AlgoTipBot.transactions import TipTransaction
-from AlgoTipBot.transactions import WithdrawTransaction
 from AlgoTipBot.utils import stream
 
 event_handler = EventHandler()
@@ -41,6 +44,10 @@ def main():
                 event.author.message("Invalid Command", INVALID_COMMAND)
             except InvalidUserError as e:
                 event.author.message("User not found", USER_NOT_FOUND.substitute(username=e.username))
+            except InvalidSubredditError as e:
+                event.author.message("Subreddit not found", SUBREDDIT_NOT_FOUND.substitute(subreddit=e.subreddit))
+            except NotModeratorError as e:
+                event.author.message("Not authorize", NOT_MODERATOR)
             except Exception: #pylint: disable=W0703
                 event.author.message("Issue", "Hello, I'm sorry but an unknown issue occured when handling\n\n "
                                              f"***{event.body}*** \n\n Please contact u/RedSwoosh to have it resolved")
