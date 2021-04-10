@@ -5,8 +5,6 @@ File containing the main loop
 import traceback
 from time import sleep
 
-from instances import reddit
-
 from AlgoTipBot.clients import console
 from AlgoTipBot.errors import InvalidCommandError
 from AlgoTipBot.errors import InvalidSubredditError
@@ -16,9 +14,7 @@ from AlgoTipBot.handlers import EventHandler
 from AlgoTipBot.templates import INVALID_COMMAND
 from AlgoTipBot.templates import NOT_MODERATOR
 from AlgoTipBot.templates import SUBREDDIT_NOT_FOUND
-from AlgoTipBot.templates import TIP_RECEIVED
-from AlgoTipBot.templates import TRANSACTION_CONFIRMATION
-from AlgoTipBot.templates import WITHDRAWAL_CONFIRMATION
+from AlgoTipBot.templates import USER_NOT_FOUND
 from AlgoTipBot.utils import stream
 
 event_handler = EventHandler()
@@ -42,11 +38,11 @@ def main():
                 event_handler.handle_event(event)
             except InvalidCommandError:
                 event.author.message("Invalid Command", INVALID_COMMAND)
-            except InvalidUserError as e:
+            except InvalidUserError as e: # pylint: disable=C0103
                 event.author.message("User not found", USER_NOT_FOUND.substitute(username=e.username))
-            except InvalidSubredditError as e:
+            except InvalidSubredditError as e: # pylint: disable=C0103
                 event.author.message("Subreddit not found", SUBREDDIT_NOT_FOUND.substitute(subreddit=e.subreddit))
-            except NotModeratorError as e:
+            except NotModeratorError as e: # pylint: disable=C0103
                 event.author.message("Not authorize", NOT_MODERATOR)
             except Exception: #pylint: disable=W0703
                 event.author.message("Issue", "Hello, I'm sorry but an unknown issue occured when handling\n\n "

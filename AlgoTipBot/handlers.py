@@ -1,3 +1,5 @@
+# pylint: disable=C0321
+
 from time import time_ns
 from typing import Union
 
@@ -53,7 +55,7 @@ class EventHandler:
         except ZeroTransactionError:
             author.message("Zero transaction",
                            ZERO_TRANSACTION)
-        except InsufficientFundsError as e:
+        except InsufficientFundsError as e: # pylint: disable=C0103
             author.message("Insufficient funds",
                            INSUFFICIENT_FUNDS.substitute(balance=e.balance,
                                                          amount=e.amount))
@@ -84,7 +86,7 @@ class EventHandler:
             except ZeroTransactionError:
                 author.message("Zero transaction",
                                ZERO_TRANSACTION)
-            except InsufficientFundsError as e:
+            except InsufficientFundsError as e: # pylint: disable=C0103
                 author.message("Insufficient funds",
                                INSUFFICIENT_FUNDS.substitute(balance=e.balance,
                                                              amount=e.amount))
@@ -102,7 +104,7 @@ class EventHandler:
             except ZeroTransactionError:
                 author.message("Zero transaction",
                                ZERO_TRANSACTION)
-            except InsufficientFundsError as e:
+            except InsufficientFundsError as e: # pylint: disable=C0103
                 author.message("Insufficient funds",
                                INSUFFICIENT_FUNDS.substitute(balance=e.balance,
                                                              amount=e.amount))

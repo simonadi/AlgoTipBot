@@ -33,6 +33,7 @@ from AlgoTipBot.templates import WITHDRAWAL_CONFIRMATION
 @dataclass
 class Wallet:
     """
+    Class representing an ALGO wallet, containing helper methods
     """
     private_key: str
     public_key: str
@@ -41,6 +42,9 @@ class Wallet:
     def generate(cls) -> "Wallet":
         """
         Generates a public/private key pair
+
+        Returns:
+            wallet: an instance of the class Wallet with the generated keys
         """
         private_key, public_key = generate_account()
         return cls(private_key, public_key)
@@ -48,7 +52,14 @@ class Wallet:
     @classmethod
     def load(cls, user_id: int) -> Optional["Wallet"]:
         """
+        Loads the wallet keys from the given user
 
+        Args:
+            user_id: the DB user-id for which we want the keys
+        Returns:
+            wallet:
+                None if the wallet information isn't found in the DB
+                An instance of the class Wallet with the fetched keys otherwise
         """
         wallet_dict = redis.hgetall(f"wallets:{user_id}")
         if not wallet_dict:
@@ -60,28 +71,28 @@ class Wallet:
         """
         Saves the wallet information to the Redis
         database
+
+        Args:
+            user: an instance of User corresponding to the wallet owner
         """
         console.log(f"Wallet created for user {user.name} (#{user.user_id})")
         redis.hmset(f"wallets:{user.user_id}", {"private_key": self.private_key,
                                                 "public_key": self.public_key})
 
-    def delete(self, user: "User") -> None:
-        """
-
-        """
-        redis.delete(f"walletsl:{user.user_id}")
-
     @property
     def qrcode(self) -> None:
         """
-
+        Returns the link to a QR code created from the public key of this wallet
         """
         return f"https://api.qrserver.com/v1/create-qr-code/?data={self.public_key}&size=220x220&margin=4"
 
     @property
     def balance(self) -> float:
         """
+        Returns the balance of the wallet
 
+        Returns:
+            balance: the balance of the wallet as a float, in Algos
         """
         account_info = algod.account_info(self.public_key)
         balance = float(microalgos_to_algos(account_info["amount"]))
@@ -89,6 +100,10 @@ class Wallet:
 
     def __repr__(self) -> str:
         """
+        Returns all information about the wallet in a string
+
+        Returns:
+            str
         """
         return WALLET_REPR.substitute(private_key=from_private_key(self.private_key),
                                       public_key=self.public_key,
@@ -97,10 +112,11 @@ class Wallet:
 
 class User:
     """
+    Class representing a Reddit user
     """
     def __init__(self, name: str, wallet: Wallet = None) -> None:
         """
-
+        TODO: doc
         """
         self.name = name.lower()
 
@@ -125,6 +141,14 @@ class User:
 
     def is_moderator(self, subreddit: str) -> bool:
         """
+        Checks if the user is a moderator of the given subreddit
+
+        Args:
+            subreddit: name of the subreddit
+        Returns:
+            bool:
+                True if the user is a mod
+                False otherwise
         """
         moderators = set(reddit.subreddit(subreddit).moderator())
         moderators = {redditor.name.lower() for redditor in moderators}
@@ -132,6 +156,16 @@ class User:
 
     def send(self, other_user: "User", amount: float, note: str, event, anonymous: bool = False) -> Optional["Transaction"]:
         """
+        Send Algos to the targeted user
+
+        Args:
+            other_user:
+            amount:
+            note:
+            event:
+            anonymous:
+        Returns:
+            transaction: the Transaction instance representing the transaction that was sent
         """
         transaction = TipTransaction(self, other_user, amount, note, event, anonymous)
         transaction.validate()
@@ -140,7 +174,15 @@ class User:
 
     def withdraw(self, amount: float, address: str, note: str, event) -> Optional["Transaction"]:
         """
+        Withdraw Algos to the targeted address
 
+        Args:
+            amount:
+            address:
+            note:
+            event:
+        Returns:
+            transaction: the Transaction instance representing the transaction that was sent
         """
         transaction = WithdrawTransaction(self, address, amount, note, event)
         transaction.validate()
@@ -152,13 +194,14 @@ class User:
         Messages the user on Reddit
 
         Arguments:
-            subject (str):
-            message (str):
+            subject: subject of the PM
+            message: body of the PM
         """
         reddit.redditor(self.name).message(subject, message)
 
     def log(self):
         """
+        Log the user creation in the console and save it in the DB
         """
         console.log(f"New user : {self.name} (#{self.user_id})")
         redis.set(f"users:{self.name}", self.user_id)
@@ -333,9 +376,6 @@ class WithdrawTransaction(Transaction):
 
         """
         params = self.params
-
-        if self.close_account:
-            self.sender.wallet.delete(self.sender)
 
         tx = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,

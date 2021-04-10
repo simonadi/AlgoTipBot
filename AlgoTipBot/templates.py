@@ -11,7 +11,8 @@ ALGOEXPLORER_LINK = f"https://{'testnet.' if NETWORK == 'testnet' else ''}algoex
 TRANSACTION_CONFIRMATION = Template("Your tip to $receiver for $amount Algos was successfuly sent \n\n"
                                     f"You can check the transaction [here]({ALGOEXPLORER_LINK}/tx/$transaction_id)")
 
-WALLET_REPR = Template(f"Public key : [$public_key]({ALGOEXPLORER_LINK}/address/$public_key)  [(QR Code)]($qr_code_link) \n\n"
+WALLET_REPR = Template(f"Public key : [$public_key]({ALGOEXPLORER_LINK}/address/$public_key) "
+                       "[(QR Code)]($qr_code_link) \n\n"
                        "Private key : $private_key \n\n"
                        "Balance : $balance Algos")
 
@@ -44,7 +45,8 @@ INSUFFICIENT_FUNDS = Template("You tried to take $amount Algos out of your walle
                               "**Note :** the wallet needs to have 0.1 Algos to be active. "
                               "You can still withdraw it by using `withdraw all <address>`")
 
-USER_NOT_FOUND = Template("Hey, I see that you tried to tip `$username`, but I can't find a redditor with that username.")
+USER_NOT_FOUND = Template("Hey, I see that you tried to tip `$username`, "
+                          "but I can't find a redditor with that username.")
 
 SUBREDDIT_NOT_FOUND = Template("I'm sorry but I couldn't find the subreddit `$subreddit`.")
 
