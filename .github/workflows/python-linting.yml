@@ -40,37 +40,15 @@ jobs:
       ##########################
       - name: Checkout Code
         uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
         with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
-          fetch-depth: 0
-
-      # These steps are used to fix the import error raised by Pylint. Comes from
-      # https://github.com/github/super-linter/issues/157
-      - name: Install missing Python packages
-        run: sudo apt-get install -y --no-install-recommends python3-venv python3-setuptools
-
-      - name: Install requirements
+          python-version: 3.9
+      - name: Install dependencies
         run: |
-          python3 -m venv .venv
-          .venv/bin/pip install -r requirements.txt
-
-
-      - name: Move the dependencies
-        run: mv .venv /home/runner/work/_temp/_github_workflow
-
-      ################################
-      # Run Linter against code base #
-      ################################
-      - name: Lint Code Base
-        uses: github/super-linter@v3
-        env:
-          PYTHONPATH: "/github/workspace/:/github/workflow/.venv/lib/python3.8/site-packages"
-          LINTER_RULES_PATH: .
-          PYTHON_PYLINT_CONFIG_FILE: .pylintrc
-          VALIDATE_PYTHON_BLACK: false
-          VALIDATE_PYTHON_ISORT: false
-          VALIDATE_PYTHON_FLAKE8: false
-          VALIDATE_MARKDOWN: false
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_JSCPD: false
+          python -m pip install --upgrade pip
+          python -m pip install pylint
+          python -m pip install - requirements.txt
+      - name: Pylint
+        run: |
+          python -m pylint algotip_bot/
