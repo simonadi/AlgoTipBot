@@ -2,6 +2,8 @@ import os
 
 import pytest
 
+from time import sleep
+
 from algotip_bot.clients import algod
 from algotip_bot.errors import InsufficientFundsError, ZeroTransactionError
 from algotip_bot.instances import User, Wallet
@@ -31,6 +33,8 @@ def users():
     transaction = reset_balances(user1, user2)
     if transaction is not None:
         wait_for_confirmation(transaction.tx_id, 10)
+
+    sleep(5)
 
 def test_small_tip(users):
     user1, user2 = users
