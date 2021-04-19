@@ -3,10 +3,8 @@ import os
 import pytest
 
 from AlgoTipBot.clients import algod
-from AlgoTipBot.errors import InsufficientFundsError
-from AlgoTipBot.errors import ZeroTransactionError
-from AlgoTipBot.instances import User
-from AlgoTipBot.instances import Wallet
+from AlgoTipBot.errors import InsufficientFundsError, ZeroTransactionError
+from AlgoTipBot.instances import User, Wallet
 from AlgoTipBot.tests.utils import reset_balances
 from AlgoTipBot.utils import wait_for_confirmation
 

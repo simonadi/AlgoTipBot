@@ -1,12 +1,10 @@
-"""
+u"""
 Utility functions
 """
 
 from prawcore.exceptions import NotFound
 
-from AlgoTipBot.clients import algod
-from AlgoTipBot.clients import reddit
-from AlgoTipBot.clients import redis
+from algotip_bot.clients import algod, reddit, redis
 
 COMMENT_COMMANDS = {"!atip"}
 SUBREDDITS = {"algorand", "algorandofficial", "cryptocurrency", "bottesting"}
@@ -94,17 +92,17 @@ def wait_for_confirmation(transaction_id, timeout):
         dict: pending transaction information, or throws an error if the transaction
             is not confirmed or rejected in the next timeout rounds
     """
-    start_round = algod.status()["last-round"] + 1;
+    start_round = algod.status()["last-round"] + 1
     current_round = start_round
 
     while current_round < start_round + timeout:
         try:
             pending_txn = algod.pending_transaction_info(transaction_id)
-        except Exception:
-            return
-        if pending_txn.get("confirmed-round", 0) > 0:
+        except Exception: # pylint: disable=W0703
+            return None
+        if pending_txn.get("confirmed-round", 0) > 0: # pylint: disable=R1705
             return pending_txn
-        elif pending_txn["pool-error"]:
+        elif pending_txn["pool-error"]: # pylint: disable=R1705
             raise Exception(
                 'pool error: {}'.format(pending_txn["pool-error"]))
         algod.status_after_block(current_round)

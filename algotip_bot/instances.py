@@ -1,33 +1,23 @@
-from abc import ABC
-from abc import abstractmethod
+"""
+TODO
+"""
+
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from time import time_ns
-from typing import TYPE_CHECKING
 from typing import Optional
-from typing import Union
 
 from algosdk import transaction
 from algosdk.account import generate_account
 from algosdk.mnemonic import from_private_key
-from algosdk.util import algos_to_microalgos
-from algosdk.util import microalgos_to_algos
-from praw.models.reddit.comment import Comment
-from praw.models.reddit.message import Message
+from algosdk.util import algos_to_microalgos, microalgos_to_algos
 
-from AlgoTipBot.clients import algod
-from AlgoTipBot.clients import console
-from AlgoTipBot.clients import reddit
-from AlgoTipBot.clients import redis
-from AlgoTipBot.errors import FirstTransactionError
-from AlgoTipBot.errors import InsufficientFundsError
-from AlgoTipBot.errors import ZeroTransactionError
-from AlgoTipBot.templates import INSUFFICIENT_FUNDS
-from AlgoTipBot.templates import NEW_USER
-from AlgoTipBot.templates import TIP_RECEIVED
-from AlgoTipBot.templates import TRANSACTION_CONFIRMATION
-from AlgoTipBot.templates import WALLET_CREATED
-from AlgoTipBot.templates import WALLET_REPR
-from AlgoTipBot.templates import WITHDRAWAL_CONFIRMATION
+from algotip_bot.clients import algod, console, reddit, redis
+from algotip_bot.errors import (FirstTransactionError, InsufficientFundsError,
+                               ZeroTransactionError)
+from algotip_bot.templates import (NEW_USER, TIP_RECEIVED,
+                                  TRANSACTION_CONFIRMATION, WALLET_REPR,
+                                  WITHDRAWAL_CONFIRMATION)
 
 
 @dataclass
@@ -62,7 +52,7 @@ class Wallet:
                 An instance of the class Wallet with the fetched keys otherwise
         """
         wallet_dict = redis.hgetall(f"wallets:{user_id}")
-        if not wallet_dict:
+        if not wallet_dict: # pylint: disable=R1705
             return None
         else:
             return cls(wallet_dict["private_key"], wallet_dict["public_key"])
@@ -129,7 +119,8 @@ class User:
 
         self.new = False
 
-        if wallet is None: wallet = Wallet.load(self.user_id)
+        if wallet is None:
+            wallet = Wallet.load(self.user_id)
 
         if wallet is None:
             self.new = True
@@ -152,9 +143,13 @@ class User:
         """
         moderators = set(reddit.subreddit(subreddit).moderator())
         moderators = {redditor.name.lower() for redditor in moderators}
-        return (self.name in moderators)
+        return self.name in moderators
 
-    def send(self, other_user: "User", amount: float, note: str, event, anonymous: bool = False) -> Optional["Transaction"]:
+    def send(self,
+             other_user: "User",
+             amount: float,
+             note: str,
+             anonymous: bool = False) -> Optional["Transaction"]:
         """
         Send Algos to the targeted user
 
@@ -165,14 +160,14 @@ class User:
             event:
             anonymous:
         Returns:
-            transaction: the Transaction instance representing the transaction that was sent
+            trsctn: the Transaction instance representing the transaction that was sent
         """
-        transaction = TipTransaction(self, other_user, amount, note, event, anonymous)
-        transaction.validate()
-        transaction.send()
-        return transaction
+        trsctn = TipTransaction(self, other_user, amount, note, anonymous)
+        trsctn.validate()
+        trsctn.send()
+        return trsctn
 
-    def withdraw(self, amount: float, address: str, note: str, event) -> Optional["Transaction"]:
+    def withdraw(self, amount: float, address: str, note: str) -> Optional["Transaction"]:
         """
         Withdraw Algos to the targeted address
 
@@ -180,14 +175,13 @@ class User:
             amount:
             address:
             note:
-            event:
         Returns:
-            transaction: the Transaction instance representing the transaction that was sent
+            trsctn: the Transaction instance representing the transaction that was sent
         """
-        transaction = WithdrawTransaction(self, address, amount, note, event)
-        transaction.validate()
-        transaction.send()
-        return transaction
+        trsctn = WithdrawTransaction(self, address, amount, note)
+        trsctn.validate()
+        trsctn.send()
+        return trsctn
 
     def message(self, subject: str, message: str) -> None:
         """
@@ -213,49 +207,56 @@ class Transaction(ABC):
     transaction
     """
     @abstractmethod
-    def validate(self) -> bool:
+    def validate(self) -> bool: # pylint: disable=C0116
         pass
 
     @abstractmethod
-    def send(self) -> "Transaction":
+    def send(self) -> "Transaction": # pylint: disable=C0116
         pass
 
     @abstractmethod
-    def confirmed(self) -> bool:
+    def confirmed(self) -> bool: # pylint: disable=C0116
         pass
 
     @abstractmethod
-    def send_confirmation(self) -> None:
+    def send_confirmation(self) -> None: # pylint: disable=C0116
         pass
 
     @abstractmethod
-    def log(self) -> None:
+    def log(self) -> None: # pylint: disable=C0116
         pass
 
     @abstractmethod
-    def __hash__(self) -> int:
+    def __hash__(self) -> int: # pylint: disable=C0116
         pass
 
 @dataclass
-class TipTransaction(Transaction):
+class TipTransaction(Transaction): # pylint: disable=R0902
+    """
+    Subclass of the Transaction class containing
+    a tip transaction
+    """
     sender: "User"
     receiver: "User"
     amount: float
     message: str
-    trigger_event: Union[Message, Comment]
     anonymous: bool
     tx_id: str = None
     redis_tx_id: int = None
     fee: float = None
     time: int = None
+    params = None
 
     def validate(self) -> bool:
         """
+        Check that the transaction is valid, otherwise raise
+        a custom error indicating the issue.
         """
         self.params = algod.suggested_params()
         self.fee = float(microalgos_to_algos(self.params.min_fee))
 
-        if self.amount < 1e-6: raise ZeroTransactionError
+        if self.amount < 1e-6:
+            raise ZeroTransactionError
 
         if (self.amount + self.fee + 0.1) > self.sender.wallet.balance:
             raise InsufficientFundsError(self.amount,
@@ -274,7 +275,7 @@ class TipTransaction(Transaction):
                          None otherwise
         """
         params = self.params
-        tx = transaction.PaymentTxn(self.sender.wallet.public_key,
+        txn = transaction.PaymentTxn(self.sender.wallet.public_key,
                                     params.min_fee,
                                     params.first,
                                     params.last,
@@ -284,11 +285,11 @@ class TipTransaction(Transaction):
                                     note=str.encode(self.message),
                                     flat_fee=True)
 
-        signed_tx = tx.sign(self.sender.wallet.private_key)
+        signed_txn = txn.sign(self.sender.wallet.private_key)
 
-        algod.send_transaction(signed_tx)
+        algod.send_transaction(signed_txn)
         self.time = time_ns() * 1e-6
-        self.tx_id = signed_tx.transaction.get_txid()
+        self.tx_id = signed_txn.transaction.get_txid()
         self.redis_tx_id = redis.incr("transaction-id")
 
         console.log(f"Transaction #{self.redis_tx_id} sent by {self.sender.name} to {self.receiver.name}")
@@ -299,11 +300,14 @@ class TipTransaction(Transaction):
         transaction is confirmed
         """
         txinfo = algod.pending_transaction_info(self.tx_id)
-        return (txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0)
+        return txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0
+
 
     def send_confirmation(self) -> None:
         """
-
+        Send a message to confirm the sender of the
+        transaction confirmation and to inform the receiver
+        that someone tipped him
         """
         self.sender.message("Tip confirmation",
                             TRANSACTION_CONFIRMATION.substitute(
@@ -322,9 +326,9 @@ class TipTransaction(Transaction):
         )
 
     def log(self) -> None:
-
-        redis_tx_id = redis.incr("transaction-id")
-
+        """
+        Log the transaction to the Redis DB
+        """
         console.log(f"Transaction #{self.redis_tx_id} confirmed")
 
         redis.hmset(f"transaction:{self.redis_tx_id}", {"sender": self.sender.user_id,
@@ -339,20 +343,27 @@ class TipTransaction(Transaction):
         return hash(self.tx_id)
 
 @dataclass
-class WithdrawTransaction(Transaction):
+class WithdrawTransaction(Transaction): # pylint: disable=R0902
+    """
+    Subclass of the Transaction class containing a
+    withdrawal
+
+    """
     sender: "User"
     destination: str
     amount: float
     message: str
-    trigger_event: Union[Message, Comment]
     tx_id: str = None
     close_account: bool = False
     redis_tx_id: int = None
     fee: float = None
     time: int = None
+    params = None
 
     def validate(self) -> bool:
         """
+        Chech that the transaction is valid, otherwise raise an error
+        that indicates the type of issue
         """
         self.params = algod.suggested_params()
         self.fee = float(microalgos_to_algos(self.params.min_fee))
@@ -363,7 +374,8 @@ class WithdrawTransaction(Transaction):
         if self.close_account:
             self.amount = self.amount - self.fee
 
-        if self.amount < 1e-6: raise ZeroTransactionError
+        if self.amount < 1e-6:
+            raise ZeroTransactionError
 
         if (self.amount + self.fee + (int(not self.close_account)*0.1)) > self.sender.wallet.balance:
             raise InsufficientFundsError(self.amount, self.sender.wallet.balance)
@@ -373,46 +385,59 @@ class WithdrawTransaction(Transaction):
 
     def send(self) -> "WithdrawTransaction":
         """
-
+        Send the transaction with the parameters given during initialization of the class
+        Gets the redis tx id to preserve creation order
+        (TODO : create the transaction with the send time and update it when confirmed
+                with confirmation time)
         """
         params = self.params
 
-        tx = transaction.PaymentTxn(self.sender.wallet.public_key,
-                                    params.min_fee,
-                                    params.first,
-                                    params.last,
-                                    params.gh,
-                                    self.destination,
-                                    algos_to_microalgos(self.amount),
-                                    note=str.encode(self.message),
-                                    close_remainder_to=None if not self.close_account else self.destination,
-                                    flat_fee=True)
+        txn = transaction.PaymentTxn(self.sender.wallet.public_key,
+                                     params.min_fee,
+                                     params.first,
+                                     params.last,
+                                     params.gh,
+                                     self.destination,
+                                     algos_to_microalgos(self.amount),
+                                     note=str.encode(self.message),
+                                     close_remainder_to=None if not self.close_account else self.destination,
+                                     flat_fee=True)
 
-        signed_tx = tx.sign(self.sender.wallet.private_key)
+        signed_txn = txn.sign(self.sender.wallet.private_key)
 
-        algod.send_transaction(signed_tx)
+        algod.send_transaction(signed_txn)
         self.time = time_ns() * 1e-6
-        self.tx_id = signed_tx.transaction.get_txid()
+        self.tx_id = signed_txn.transaction.get_txid()
         self.redis_tx_id = redis.incr("transaction-id")
 
         console.log(f"Withdrawal #{self.redis_tx_id} sent by {self.sender.name}")
 
     def confirmed(self) -> bool:
         """
-
+        Checks if the transaction has been confirmed
+        Returns:
+            Bool:
+                True if the transaction is confirmed
+                False otherwise
         """
         txinfo = algod.pending_transaction_info(self.tx_id)
-        return (txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0)
+        return txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0
 
     def send_confirmation(self) -> None:
         """
-
+        Sends a message to the Reddit user to confirm the withdrawal,
+        and give a link to AlgoExplorer to have a proof of transaction
         """
-        self.trigger_event.reply(WITHDRAWAL_CONFIRMATION.substitute(amount=self.amount,
-                                                                    address=self.destination,
-                                                                    transaction_id=self.tx_id))
+        self.sender.message("Withdrawal confirmations",
+                            WITHDRAWAL_CONFIRMATION.substitute(amount=self.amount,
+                                                               address=self.destination,
+                                                               transaction_id=self.tx_id))
 
     def log(self) -> None:
+        """
+        Logs the confirmation of the withdrawal to the console and
+        to the database by adding a transaction record
+        """
         console.log(f"Withdrawal #{self.redis_tx_id} confirmed")
 
         redis.hmset(f"transaction:{self.redis_tx_id}", {"user": self.sender.user_id,
@@ -424,5 +449,7 @@ class WithdrawTransaction(Transaction):
 
     def __hash__(self) -> int:
         """
+        Returns a hash of the Algo transaction ID (int)
+        Allows the use of this class in sets and dictionaries
         """
         return hash(self.tx_id)

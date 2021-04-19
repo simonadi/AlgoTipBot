@@ -1,5 +1,4 @@
-from AlgoTipBot.clients import reddit
-from AlgoTipBot.clients import redis
+from AlgoTipBot.clients import reddit, redis
 from AlgoTipBot.utils import COMMENT_COMMANDS
 
 inbox_events = list(reddit.inbox.unread())

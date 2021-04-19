@@ -5,17 +5,13 @@ File containing the main loop
 import traceback
 from time import sleep
 
-from AlgoTipBot.clients import console
-from AlgoTipBot.errors import InvalidCommandError
-from AlgoTipBot.errors import InvalidSubredditError
-from AlgoTipBot.errors import InvalidUserError
-from AlgoTipBot.errors import NotModeratorError
-from AlgoTipBot.handlers import EventHandler
-from AlgoTipBot.templates import INVALID_COMMAND
-from AlgoTipBot.templates import NOT_MODERATOR
-from AlgoTipBot.templates import SUBREDDIT_NOT_FOUND
-from AlgoTipBot.templates import USER_NOT_FOUND
-from AlgoTipBot.utils import stream
+from algotip_bot.clients import console, reddit
+from algotip_bot.errors import (InvalidCommandError, InvalidSubredditError,
+                               InvalidUserError, NotModeratorError)
+from algotip_bot.handlers import EventHandler
+from algotip_bot.templates import (INVALID_COMMAND, NOT_MODERATOR,
+                                  SUBREDDIT_NOT_FOUND, USER_NOT_FOUND)
+from algotip_bot.utils import stream
 
 event_handler = EventHandler()
 

@@ -1,37 +1,39 @@
 # pylint: disable=C0321
 
+"""
+File containing the EventHandler class, that takes in
+a praw Event and performs the matching action
+"""
+
 from time import time_ns
 from typing import Union
 
 from praw.models.reddit.comment import Comment
 from praw.models.reddit.message import Message
 
-from AlgoTipBot.clients import console
-from AlgoTipBot.clients import redis
-from AlgoTipBot.errors import InsufficientFundsError
-from AlgoTipBot.errors import InvalidCommandError
-from AlgoTipBot.errors import InvalidSubredditError
-from AlgoTipBot.errors import NotModeratorError
-from AlgoTipBot.errors import ZeroTransactionError
-from AlgoTipBot.instances import Transaction
-from AlgoTipBot.instances import User
-from AlgoTipBot.templates import EVENT_RECEIVED
-from AlgoTipBot.templates import INSUFFICIENT_FUNDS
-from AlgoTipBot.templates import NEW_USER
-from AlgoTipBot.templates import NO_WALLET
-from AlgoTipBot.templates import USER_NOT_FOUND
-from AlgoTipBot.templates import ZERO_TRANSACTION
-from AlgoTipBot.utils import is_float
-from AlgoTipBot.utils import valid_subreddit
-from AlgoTipBot.utils import valid_user
+from algotip_bot.clients import console, redis
+from algotip_bot.errors import (InsufficientFundsError, InvalidCommandError,
+                               InvalidSubredditError, InvalidUserError,
+                               NotModeratorError, ZeroTransactionError)
+from algotip_bot.instances import User
+from algotip_bot.templates import (EVENT_RECEIVED, INSUFFICIENT_FUNDS,
+                                  NO_WALLET, ZERO_TRANSACTION)
+from algotip_bot.utils import is_float, valid_subreddit, valid_user
 
 
 class EventHandler:
+    """
+    Class used to handle an incoming event
+    and keep in memory the unconfirmed transactions
+    note: could probably do  without a class
+    """
     unconfirmed_transactions: set = set()
 
     def handle_comment(self, comment: Comment) -> None:
         """
-
+        Handle a comment.
+        The only use of the comment is to tip the person whose
+        post/comment was commented using !atip
         """
         author = User(comment.author.name)
         if author.new:
@@ -40,7 +42,7 @@ class EventHandler:
         receiver = User(comment.parent().author.name)
         command = comment.body.split()
         first_word = command.pop(0).lower() # Get rid of the /u/AlgorandTipBot
-        if first_word not in ("!atip"):
+        if first_word not in set("!atip"):
             return
 
         if not command: raise InvalidCommandError(comment.body) # If command empty after popping username
@@ -50,7 +52,7 @@ class EventHandler:
         note = " ".join(command)
 
         try:
-            transaction = author.send(receiver, amount, note, comment)
+            transaction = author.send(receiver, amount, note)
             self.unconfirmed_transactions.add(transaction)
         except ZeroTransactionError:
             author.message("Zero transaction",
@@ -59,9 +61,14 @@ class EventHandler:
             author.message("Insufficient funds",
                            INSUFFICIENT_FUNDS.substitute(balance=e.balance,
                                                          amount=e.amount))
-    def handle_message(self, message: Message) -> None:
+    def handle_message(self, message: Message) -> None: # pylint: disable=R0912, R0915
         """
         Parses the incoming message to determine what action to take
+        The user can:
+         * tip (anonymously)
+         * withdraw
+         * check balance
+         * (de)activate the bot on subreddits
         """
         author = User(message.author.name)
         command = message.body.split()
@@ -81,7 +88,7 @@ class EventHandler:
             note = " ".join(command)
 
             try:
-                transaction = author.send(receiver, amount, note, message, anonymous)
+                transaction = author.send(receiver, amount, note, anonymous)
                 self.unconfirmed_transactions.add(transaction)
             except ZeroTransactionError:
                 author.message("Zero transaction",
@@ -99,7 +106,7 @@ class EventHandler:
             note = " ".join(command)
 
             try:
-                transaction = author.withdraw(amount, address, note, message)
+                transaction = author.withdraw(amount, address, note)
                 self.unconfirmed_transactions.add(transaction)
             except ZeroTransactionError:
                 author.message("Zero transaction",
@@ -139,7 +146,8 @@ class EventHandler:
 
     def handle_event(self, event: Union[Comment, Message]) -> None:
         """
-
+        Logs the incoming event and distributes it to handle_comment
+        or handle_message depending on the type
         """
         command_id = redis.incr("command-id")
         redis.zadd("commands", {command_id: time_ns() * 1e-6})

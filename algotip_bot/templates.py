@@ -4,7 +4,7 @@ File containing message templates
 
 from string import Template
 
-from AlgoTipBot.clients import NETWORK
+from algotip_bot.clients import NETWORK
 
 ALGOEXPLORER_LINK = f"https://{'testnet.' if NETWORK == 'testnet' else ''}algoexplorer.io"
 
