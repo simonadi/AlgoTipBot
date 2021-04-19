@@ -18,6 +18,7 @@ WALLET2_PUBLIC_KEY = os.environ["WALLET2_PUBLIC_KEY"]
 
 @pytest.fixture
 def users():
+    sleep(5)
     wallet1 = Wallet(WALLET1_PRIVATE_KEY, WALLET1_PUBLIC_KEY)
     user1 = User("user1", wallet1)
 
@@ -33,8 +34,6 @@ def users():
     transaction = reset_balances(user1, user2)
     if transaction is not None:
         wait_for_confirmation(transaction.tx_id, 10)
-
-    sleep(5)
 
 def test_small_tip(users):
     user1, user2 = users
