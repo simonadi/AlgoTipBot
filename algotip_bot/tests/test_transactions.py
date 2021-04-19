@@ -37,38 +37,38 @@ def users():
 
 def test_small_tip(users):
     user1, user2 = users
-    transaction = user1.send(user2, 1, "", None)
+    transaction = user1.send(user2, 1, "")
     wait_for_confirmation(transaction.tx_id, 10)
     assert user2.wallet.balance == 1.1
 
 def test_zero_tip(users):
     user1, user2 = users
     with pytest.raises(ZeroTransactionError):
-        transaction = user1.send(user2, 1e-8, "", None)
+        transaction = user1.send(user2, 1e-8, "")
 
 @pytest.mark.skip(reason="Confirmation for big transactions not implemented yet")
 def test_tip_above_ten(users):
     user1, user2 = users
-    transaction = user1.send(user2, 12, "", None)
+    transaction = user1.send(user2, 12, "")
     pass
 
 def test_insufficient_funds_tip(users):
     user1, user2 = users
     with pytest.raises(InsufficientFundsError):
-        transaction = user2.send(user1, 0.5, "", None)
+        transaction = user2.send(user1, 0.5, "")
 
 def test_withdraw(users):
     user1, user2 = users
-    transaction = user1.withdraw(1, WALLET2_PUBLIC_KEY, "", None)
+    transaction = user1.withdraw(1, WALLET2_PUBLIC_KEY, "")
     wait_for_confirmation(transaction.tx_id, 10)
     assert user2.wallet.balance == 1.1
 
 def test_insufficient_funds_withdraw(users):
     user1, user2 = users
     with pytest.raises(InsufficientFundsError):
-        user2.withdraw(1, WALLET1_PUBLIC_KEY, "", None)
+        user2.withdraw(1, WALLET1_PUBLIC_KEY, "")
 
 def test_zero_withdraw(users):
     user1, user2 = users
     with pytest.raises(ZeroTransactionError):
-        user1.withdraw(1e-8, WALLET2_PUBLIC_KEY, "", None)
+        user1.withdraw(1e-8, WALLET2_PUBLIC_KEY, "")
