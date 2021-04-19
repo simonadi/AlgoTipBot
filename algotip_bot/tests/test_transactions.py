@@ -2,11 +2,11 @@ import os
 
 import pytest
 
-from AlgoTipBot.clients import algod
-from AlgoTipBot.errors import InsufficientFundsError, ZeroTransactionError
-from AlgoTipBot.instances import User, Wallet
-from AlgoTipBot.tests.utils import reset_balances
-from AlgoTipBot.utils import wait_for_confirmation
+from algotip_bot.clients import algod
+from algotip_bot.errors import InsufficientFundsError, ZeroTransactionError
+from algotip_bot.instances import User, Wallet
+from algotip_bot.tests.utils import reset_balances
+from algotip_bot.utils import wait_for_confirmation
 
 WALLET1_PRIVATE_KEY = os.environ["WALLET1_PRIVATE_KEY"]
 WALLET1_PUBLIC_KEY = os.environ["WALLET1_PUBLIC_KEY"]

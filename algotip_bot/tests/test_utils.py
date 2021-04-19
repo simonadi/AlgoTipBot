@@ -1,6 +1,6 @@
 import pytest
 
-from AlgoTipBot.utils import is_float, valid_user
+from algotip_bot.utils import is_float, valid_user
 
 
 def test_valid_user():
