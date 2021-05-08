@@ -25,7 +25,11 @@ EVENT_RECEIVED = Template("Received a new $event_type #$command_id from $author\
 TIP_RECEIVED = Template("$sender tipped you $amount Algos\n\n")
 
 NEW_USER = Template("Welcome, since you are a new user I created you a wallet. Here's the wallet information :\n\n"
-                    "$wallet")
+                    "$wallet \n\n"
+                    "**Recommendations** : keep the lowest amount of ALGOs possible in this wallet by withdrawing "
+                    "the funds to a personal wallet, "  
+                    "because by keeping ALGOs in the bot's wallets you're trusting the person who runs the bot (/u/redswoosh)"
+                    "with these funds")
 
 WITHDRAWAL_CONFIRMATION = Template("Withdrawal of $amount Algos to address $address successful \n\n"
                                    f"You can check the transaction [here]({ALGOEXPLORER_LINK}/tx/$transaction_id)")
