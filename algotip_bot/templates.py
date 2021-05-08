@@ -27,9 +27,9 @@ TIP_RECEIVED = Template("$sender tipped you $amount Algos\n\n")
 NEW_USER = Template("Welcome, since you are a new user I created you a wallet. Here's the wallet information :\n\n"
                     "$wallet \n\n"
                     "**Recommendations** : keep the lowest amount of ALGOs possible in this wallet by withdrawing "
-                    "the funds to a personal wallet, "  
-                    "because by keeping ALGOs in the bot's wallets you're trusting the person who runs the bot (/u/redswoosh)"
-                    "with these funds")
+                    "the funds to a personal wallet, "
+                    "because by keeping ALGOs in the bot's wallets you're entrusting the person "
+                    "who runs the bot (/u/redswoosh) with these funds")
 
 WITHDRAWAL_CONFIRMATION = Template("Withdrawal of $amount Algos to address $address successful \n\n"
                                    f"You can check the transaction [here]({ALGOEXPLORER_LINK}/tx/$transaction_id)")
@@ -61,5 +61,5 @@ ZERO_TRANSACTION = ("I cancelled your transaction because you tried to do a tran
                     " of less than 1e-6 Algos, which is the smallest fraction "
                     "of Algos. This transaction would send 0 Algos and make you lose the fee.")
 
-LIST_SUBREDDITS = ("I am currently active on these subreddits : $subreddits \n\n"
-                   "It means that you can use the `!atip` command on these specific subreddits")
+LIST_SUBREDDITS = Template("I am currently active on these subreddits : $subreddits \n\n"
+                           "It means that you can use the `!atip` command on these specific subreddits")

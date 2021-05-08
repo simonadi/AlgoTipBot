@@ -29,7 +29,7 @@ class EventHandler:
     """
     unconfirmed_transactions: set = set()
 
-    def handle_comment(self, comment: Comment) -> None:SUBREDDITS
+    def handle_comment(self, comment: Comment) -> None:
         """
         Handle a comment.
         The only use of the comment is to tip the person whose
@@ -132,8 +132,8 @@ class EventHandler:
             if (action:=command.pop(0)) not in ("add", "remove", "list"): raise InvalidCommandError(message.body)
 
             if action == "list":
-                subreddits = redis.smembers('subreddits')
-                author.message('Subreddits', LIST_SUBREDDITS(subreddits=', '.join(subreddits)))
+                author.message('Subreddits',
+                               LIST_SUBREDDITS.substitute(subreddits=', '.join(redis.smembers('subreddits'))))
                 return
 
             if not valid_subreddit(subreddit:=(command.pop(0).lower())): raise InvalidSubredditError(subreddit)
@@ -147,7 +147,7 @@ class EventHandler:
                 redis.srem("subreddits", subreddit)
                 console.log(f"Subreddit {subreddit} removed")
                 author.message('Subreddit removed', f'The subreddit {subreddit} was sucessfully removed')
-                
+
 
         ######################### Handle unknown command #########################
         else:
