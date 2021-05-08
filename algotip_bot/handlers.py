@@ -8,6 +8,8 @@ a praw Event and performs the matching action
 from time import time_ns
 from typing import Union
 
+from algosdk import encoding
+
 from praw.models.reddit.comment import Comment
 from praw.models.reddit.message import Message
 
@@ -102,7 +104,7 @@ class EventHandler:
         elif main_cmd == "withdraw":
             if len(command) < 2: raise InvalidCommandError(message.body)
             if not ((amount:=command.pop(0)) or is_float(amount)): raise InvalidCommandError(message.body)
-            address = command.pop(0) # TODO : check that the address is valid
+            if not encoding.is_valid_address(address:=command.pop(0)): raise InvalidCommandError(message)
             note = " ".join(command)
 
             try:
