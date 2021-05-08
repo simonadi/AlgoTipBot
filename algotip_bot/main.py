@@ -21,6 +21,8 @@ def main():
     """
     waiting = 0
 
+    console.log("Started successfully. Waiting for messages ...")
+
     while True:
         if not waiting:
             for transaction in event_handler.unconfirmed_transactions.copy():

@@ -56,3 +56,6 @@ NOT_MODERATOR = ("Hello, it looks like you tried to perform an action that is on
 ZERO_TRANSACTION = ("I cancelled your transaction because you tried to do a transaction"
                     " of less than 1e-6 Algos, which is the smallest fraction "
                     "of Algos. This transaction would send 0 Algos and make you lose the fee.")
+
+LIST_SUBREDDITS = ("I am currently active on these subreddits : $subreddits \n\n"
+                   "It means that you can use the `!atip` command on these specific subreddits")

@@ -17,7 +17,7 @@ from algotip_bot.errors import (InsufficientFundsError, InvalidCommandError,
                                NotModeratorError, ZeroTransactionError)
 from algotip_bot.instances import User
 from algotip_bot.templates import (EVENT_RECEIVED, INSUFFICIENT_FUNDS,
-                                  NO_WALLET, ZERO_TRANSACTION)
+                                  NO_WALLET, ZERO_TRANSACTION, LIST_SUBREDDITS)
 from algotip_bot.utils import is_float, valid_subreddit, valid_user
 
 
@@ -29,7 +29,7 @@ class EventHandler:
     """
     unconfirmed_transactions: set = set()
 
-    def handle_comment(self, comment: Comment) -> None:
+    def handle_comment(self, comment: Comment) -> None:SUBREDDITS
         """
         Handle a comment.
         The only use of the comment is to tip the person whose
@@ -129,16 +129,25 @@ class EventHandler:
         ######################### Handle subreddit command #########################
         elif main_cmd == "subreddit":
             if len(command) < 2: raise InvalidCommandError(message.body)
-            if (action:=command.pop(0)) not in ("add", "remove"): raise InvalidCommandError(message.body)
-            if not valid_subreddit(subreddit:=command.pop(0)): raise InvalidSubredditError(subreddit)
+            if (action:=command.pop(0)) not in ("add", "remove", "list"): raise InvalidCommandError(message.body)
+
+            if action == "list":
+                subreddits = redis.smembers('subreddits')
+                author.message('Subreddits', LIST_SUBREDDITS(subreddits=', '.join(subreddits)))
+                return
+
+            if not valid_subreddit(subreddit:=(command.pop(0).lower())): raise InvalidSubredditError(subreddit)
             if not author.is_moderator(subreddit): raise NotModeratorError
 
             if action == "add":
                 redis.sadd("subreddits", subreddit)
                 console.log(f"Subreddit {subreddit} added")
+                author.message('Subreddit added', f'The subreddit {subreddit} was sucessfully added')
             elif action == "remove":
                 redis.srem("subreddits", subreddit)
                 console.log(f"Subreddit {subreddit} removed")
+                author.message('Subreddit removed', f'The subreddit {subreddit} was sucessfully removed')
+                
 
         ######################### Handle unknown command #########################
         else:

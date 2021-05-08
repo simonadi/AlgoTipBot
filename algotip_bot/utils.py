@@ -70,7 +70,7 @@ def stream():
     """
     inbox_unread = set(reddit.inbox.unread())
     comment_cache = redis.smembers("comment-cache")
-    comments = {comment for comment in reddit.subreddit("+".join(SUBREDDITS)).comments(limit=100)
+    comments = {comment for comment in reddit.subreddit("+".join(redis.smembers('subreddits'))).comments(limit=100)
                         if any(command in comment.body for command in COMMENT_COMMANDS)
                         and comment.id not in comment_cache}
 
