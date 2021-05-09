@@ -44,7 +44,7 @@ class EventHandler:
         receiver = User(comment.parent().author.name)
         command = comment.body.split()
         first_word = command.pop(0).lower() # Get rid of the /u/AlgorandTipBot
-        if first_word not in set("!atip"):
+        if first_word not in ("!atip"):
             return
 
         if not command: raise InvalidCommandError(comment.body) # If command empty after popping username
