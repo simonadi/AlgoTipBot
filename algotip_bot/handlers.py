@@ -130,14 +130,15 @@ class EventHandler:
 
         ######################### Handle subreddit command #########################
         elif main_cmd == "subreddit":
-            if len(command) < 2: raise InvalidCommandError(message.body)
+            if not command: raise InvalidCommandError(message.body) # Raise an error if there is nothing after subreddit
             if (action:=command.pop(0)) not in ("add", "remove", "list"): raise InvalidCommandError(message.body)
 
             if action == "list":
                 author.message('Subreddits',
                                LIST_SUBREDDITS.substitute(subreddits=', '.join(redis.smembers('subreddits'))))
                 return
-
+            
+            if not command: raise InvalidCommandError(message.body) # Raise an error if there is nothing after add/remove
             if not valid_subreddit(subreddit:=(command.pop(0).lower())): raise InvalidSubredditError(subreddit)
             if not author.is_moderator(subreddit): raise NotModeratorError
 

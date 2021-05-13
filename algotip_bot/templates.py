@@ -62,4 +62,4 @@ ZERO_TRANSACTION = ("I cancelled your transaction because you tried to do a tran
                     "of Algos. This transaction would send 0 Algos and make you lose the fee.")
 
 LIST_SUBREDDITS = Template("I am currently active on these subreddits : $subreddits \n\n"
-                           "It means that you can use the `!atip` command on these specific subreddits")
+                           "It means that you can only use the `!atip` command on these specific subreddits")
