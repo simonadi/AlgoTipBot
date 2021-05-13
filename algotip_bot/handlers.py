@@ -44,7 +44,7 @@ class EventHandler:
         receiver = User(comment.parent().author.name)
         command = comment.body.split()
         first_word = command.pop(0).lower() # Get rid of the /u/AlgorandTipBot
-        if first_word not in ("!atip"):
+        if first_word not in "!atip":
             return
 
         if not command: raise InvalidCommandError(comment.body) # If command empty after popping username
@@ -137,8 +137,8 @@ class EventHandler:
                 author.message('Subreddits',
                                LIST_SUBREDDITS.substitute(subreddits=', '.join(redis.smembers('subreddits'))))
                 return
-            
-            if not command: raise InvalidCommandError(message.body) # Raise an error if there is nothing after add/remove
+
+            if not command: raise InvalidCommandError(message.body) # Raise error if there is nothing after add/remove
             if not valid_subreddit(subreddit:=(command.pop(0).lower())): raise InvalidSubredditError(subreddit)
             if not author.is_moderator(subreddit): raise NotModeratorError
 
