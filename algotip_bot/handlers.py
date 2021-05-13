@@ -104,7 +104,7 @@ class EventHandler:
         elif main_cmd == "withdraw":
             if len(command) < 2: raise InvalidCommandError(message.body)
             if not ((amount:=command.pop(0)) or is_float(amount)): raise InvalidCommandError(message.body)
-            if not encoding.is_valid_address(address:=command.pop(0)): raise InvalidCommandError(message)
+            if not encoding.is_valid_address(address:=command.pop(0)): raise InvalidCommandError(message.body)
             note = " ".join(command)
 
             try:
