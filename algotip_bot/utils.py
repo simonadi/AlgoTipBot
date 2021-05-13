@@ -2,7 +2,7 @@
 Utility functions
 """
 
-from prawcore.exceptions import NotFound
+from prawcore.exceptions import NotFound, ServerError
 
 from algotip_bot.clients import algod, reddit, redis
 
@@ -68,11 +68,14 @@ def stream():
     targeted subreddits that contain an AlgoTip command
     Adds the comments to a cache to know which ones were already dealt with
     """
-    inbox_unread = set(reddit.inbox.unread())
-    comment_cache = redis.smembers("comment-cache")
-    comments = {comment for comment in reddit.subreddit("+".join(redis.smembers('subreddits'))).comments(limit=100)
-                        if any(command in comment.body for command in COMMENT_COMMANDS)
-                        and comment.id not in comment_cache}
+    try:
+        inbox_unread = set(reddit.inbox.unread())
+        comment_cache = redis.smembers("comment-cache")
+        comments = {comment for comment in reddit.subreddit("+".join(redis.smembers('subreddits'))).comments(limit=100)
+                            if any(command in comment.body for command in COMMENT_COMMANDS)
+                            and comment.id not in comment_cache}
+    except ServerError: # Avoid having the bot crash everytime the Reddit API is struggling
+        return set()
 
     if comments:
         redis.sadd("comment-cache", *{comment.id for comment in comments})
