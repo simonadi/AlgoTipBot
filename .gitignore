@@ -3,3 +3,5 @@ algo.code-workspace
 *cache*
 .env
 .vscode
+.venv
+.vim
